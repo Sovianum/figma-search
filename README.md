@@ -1,0 +1,1 @@
+This is simple search plugin to ease pain of using Figma a little

@@ -1,0 +1,7 @@
+{
+  "name": "Search",
+  "id": "828554591066504945",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}

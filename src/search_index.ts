@@ -12,7 +12,7 @@ export function buildIndex(root: DocumentNode|PageNode): SearchIndex {
     return index
 }
 
-interface SearchIndex {
+export interface SearchIndex {
     add(id: any, text: string)
     search(text: string, limit: number): Array<any>
 }

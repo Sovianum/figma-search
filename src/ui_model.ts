@@ -76,11 +76,11 @@ export class UIModel {
     rebuildIndexOnTheFly: boolean
     searchResult: SearchResults
     inputView: HTMLInputElement
-    rootNode: Node & ParentNode
+    responseNode: Node & ParentNode
 
-    constructor(inputView: HTMLInputElement) {
+    constructor(inputView: HTMLInputElement, responseNode: Node & ParentNode) {
         this.inputView = inputView
-        this.rootNode = inputView.parentNode
+        this.responseNode = responseNode
 
         this.inputView.addEventListener("keyup", function(event) {
             if (event.keyCode === 13) {
@@ -103,6 +103,6 @@ export class UIModel {
             this.searchResult = SearchResults.none()
         }
 
-        this.rootNode.appendChild(this.searchResult.view)
+        this.responseNode.appendChild(this.searchResult.view)
     }
 }

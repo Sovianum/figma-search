@@ -2,6 +2,7 @@ export enum MessageType {
     SearchRequest = "search_request",
     SearchResponse = "search_response",
     NavigateToNode = "navigate_to_node",
+    UpdateModelSettings = "update_model_settings",
     Cancel = "cancel"
 }
 

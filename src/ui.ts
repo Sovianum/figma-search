@@ -2,7 +2,10 @@ import './ui.css'
 import {MessageType, SearchResponse, PluginMessage} from './messages'
 import {UIModel, SearchResultItem} from './ui_model'
 
-const model = new UIModel(document.getElementById('search_input') as HTMLInputElement)
+const model = new UIModel(
+  document.getElementById('search_input') as HTMLInputElement,
+  document.getElementById('search_div')
+)
 model.inputView.focus()
 
 onmessage = event => {

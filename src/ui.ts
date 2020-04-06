@@ -1,4 +1,5 @@
-import './ui.css'
+import './static/ds.min.css'
+import './static/ds.min.js'
 import {MessageType, SearchResponse, PluginMessage} from './messages'
 import {UIModel, SearchResultItem} from './ui_model'
 

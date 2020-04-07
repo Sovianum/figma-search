@@ -5,14 +5,14 @@ figma.showUI(__html__)
 
 const model = new Model()
 
-figma.ui.onmessage = msg => {
+figma.ui.onmessage = async function(msg) {
   switch (msg.type) {
     case MessageType.SearchRequest:
-      model.onSearchRequest(msg.text)
+      await model.onSearchRequest(msg.text)
       break
 
     case MessageType.NavigateToNode:
-      model.onNavToNodeRequest(msg.id)
+      await model.onNavToNodeRequest(msg.id)
       break
   }
 }

@@ -1,22 +1,21 @@
 import {getNodePage} from './util'
-import {buildIndex, SearchIndex} from './search_index'
-import {MessageType, SearchResponse, newSearchResponseMessage} from './messages'
+import {IndexStorage} from './search'
+import {SearchResponse, newSearchResponseMessage} from './messages'
 
 
 export class Model {
-    index: SearchIndex
+    storage: IndexStorage
     rebuildIndexOnSearch: boolean
 
     constructor() {
         this.rebuildIndexOnSearch = true
+        this.storage = new IndexStorage()
     }
 
-    onNavToNodeRequest(id: string) {
+    async onNavToNodeRequest(id: string) {
         const node = figma.getNodeById(id) as TextNode
         if (!node) {
-            console.log("node not found; update undex")
-            // TODO add another message
-            return
+            throw new Error("node not found; update undex")
         }
         
         const page = getNodePage(node)
@@ -29,15 +28,31 @@ export class Model {
         figma.viewport.scrollAndZoomIntoView([node])
     }
 
-    onSearchRequest(text: string) {
+    async onSearchRequest(text: string) {
+        const documentID = this.getCurrentDocumentID()
+
         if (this.rebuildIndexOnSearch) {
-            this.index = buildIndex(figma.root)
+            await this.storage.reindex(documentID, figma.root)
         }
 
-        const nodeIDs = this.index.search(text, 10)
+        const index = await this.storage.getIndex(documentID)
+        if (!index) {
+            throw new Error("send here message to reindex document")
+        }
+        
+        const week = 1000 * 3600 * 24 * 7
+        if (Date.now() - index.updated > week) {
+            throw new Error("send here message about expired index")
+        }
+
+        const nodeIDs = index.search(text, 10)
         const nodes = nodeIDs.map(id => figma.getNodeById(id)) as Array<TextNode>
       
         const searchResults = nodes.map(node => new SearchResponse(node.id, node.characters))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
-      }
+    }
+
+    getCurrentDocumentID(): string {
+        return figma.currentPage.parent.id
+    }
 }

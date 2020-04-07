@@ -30,7 +30,6 @@ export class Model {
         const documentID = this.getCurrentDocumentID()
 
         if (indexOnSearch) {
-            console.log("called reindex")
             await this.storage.reindex(documentID, figma.root)
         }
 

@@ -19,7 +19,7 @@ export class IndexStorage {
 
         const castedIndexValue = indexValue as IndexValue
 
-        const newIndex = FlexSearch.create()
+        const newIndex = this.makeIndex()
 
         // i can not use import method directly coz it crashes webpack
         newIndex['import'](castedIndexValue.indexDump)
@@ -38,7 +38,7 @@ export class IndexStorage {
     }
 
     private buildIndex(root: DocumentNode|PageNode): any {
-        const index = FlexSearch.create();
+        const index = this.makeIndex();
     
         const textNodes = root.findAll(node => node.type == 'TEXT');
         textNodes.forEach(node => {
@@ -47,6 +47,15 @@ export class IndexStorage {
         })
     
         return index
+    }
+
+    private makeIndex() {
+        // return new FlexSearch()
+        return new FlexSearch({
+            encode: false,
+            split: /\s+/,
+            tokenize: "forward"
+        })
     }
 
 }

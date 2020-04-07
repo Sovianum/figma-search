@@ -8,7 +8,7 @@ const model = new Model()
 figma.ui.onmessage = async function(msg) {
   switch (msg.type) {
     case MessageType.SearchRequest:
-      await model.onSearchRequest(msg.text)
+      await model.onSearchRequest(msg.text, msg.indexOnSearch)
       break
 
     case MessageType.NavigateToNode:

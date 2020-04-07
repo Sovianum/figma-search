@@ -5,6 +5,7 @@ import {UIModel, SearchResultItem} from './ui_model'
 
 const model = new UIModel(
   document.getElementById('search_input') as HTMLInputElement,
+  document.getElementById('index_on_search') as HTMLInputElement,
   document.getElementById('search_div')
 )
 model.inputView.focus()

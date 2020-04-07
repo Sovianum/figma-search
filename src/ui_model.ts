@@ -76,17 +76,23 @@ export class UIModel {
     rebuildIndexOnTheFly: boolean
     searchResult: SearchResults
     inputView: HTMLInputElement
+    indexOnSearchView: HTMLInputElement
     responseNode: Node & ParentNode
 
-    constructor(inputView: HTMLInputElement, responseNode: Node & ParentNode) {
+    constructor(inputView: HTMLInputElement, indexOnSearchView: HTMLInputElement, responseNode: Node & ParentNode) {
         this.inputView = inputView
+        this.indexOnSearchView = indexOnSearchView
         this.responseNode = responseNode
 
         this.inputView.addEventListener("keyup", function(event) {
             if (event.keyCode === 13) {
               event.preventDefault()
 
-              parent.postMessage({ pluginMessage: { type: MessageType.SearchRequest, text: inputView.value } }, '*')
+              parent.postMessage({ pluginMessage: { 
+                type: MessageType.SearchRequest, 
+                text: inputView.value,
+                indexOnSearch: indexOnSearchView.checked
+               } }, '*')
             }
         })
     }

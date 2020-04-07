@@ -5,17 +5,15 @@ import {SearchResponse, newSearchResponseMessage} from './messages'
 
 export class Model {
     storage: IndexStorage
-    rebuildIndexOnSearch: boolean
 
     constructor() {
-        this.rebuildIndexOnSearch = true
         this.storage = new IndexStorage()
     }
 
     async onNavToNodeRequest(id: string) {
         const node = figma.getNodeById(id) as TextNode
         if (!node) {
-            throw new Error("node not found; update undex")
+            this.logAndThrow(new Error("node not found; update undex"))
         }
         
         const page = getNodePage(node)
@@ -28,21 +26,22 @@ export class Model {
         figma.viewport.scrollAndZoomIntoView([node])
     }
 
-    async onSearchRequest(text: string) {
+    async onSearchRequest(text: string, indexOnSearch: boolean) {
         const documentID = this.getCurrentDocumentID()
 
-        if (this.rebuildIndexOnSearch) {
+        if (indexOnSearch) {
+            console.log("called reindex")
             await this.storage.reindex(documentID, figma.root)
         }
 
         const index = await this.storage.getIndex(documentID)
         if (!index) {
-            throw new Error("send here message to reindex document")
+            this.logAndThrow(new Error("send here message to reindex document"))
         }
         
         const week = 1000 * 3600 * 24 * 7
         if (Date.now() - index.updated > week) {
-            throw new Error("send here message about expired index")
+            this.logAndThrow(new Error("send here message about expired index"))
         }
 
         const nodeIDs = index.search(text, 10)
@@ -54,5 +53,10 @@ export class Model {
 
     getCurrentDocumentID(): string {
         return figma.currentPage.parent.id
+    }
+
+    logAndThrow(err) {
+        console.log(err)
+        throw err
     }
 }

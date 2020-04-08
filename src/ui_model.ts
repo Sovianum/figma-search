@@ -18,18 +18,21 @@ export class SearchResultItem {
     }
 
     createSearchResultItemView(text: string, callback): Element {
-        const a = document.createElement('a')
-        a.style.textAlign = 'left'
+        const p = document.createElement('p')
+        p.className = 'type type--pos-small-normal'
       
         const nodeText = text.length <= 50 ? text : text.substr(0, 50) + '...'
         const node = document.createTextNode(nodeText)
+        p.appendChild(node)
+        
+        const divider = document.createElement('div')
+        divider.className = 'divider'
+
+        p.appendChild(divider)
+
+        p.onclick = callback
       
-        a.appendChild(node)
-        a.appendChild(document.createElement('br'))
-        a.appendChild(document.createElement('hr'))
-        a.onclick = callback
-      
-        return a
+        return p
     }
 }
 
@@ -52,8 +55,8 @@ class SearchResults {
 
         const p = document.createElement('p')
         p.style.color = 'ff0000'
-        p.style.textAlign = 'left'
-        const node = document.createTextNode("Ничего не найдено!")
+        p.className = 'type type--pos-large-normal'
+        const node = document.createTextNode("Nothing found!")
         p.appendChild(node)
         result.view.appendChild(p)
 

@@ -1,6 +1,6 @@
 import {getNodePage} from './util'
 import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage} from './messages'
+import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage} from './messages'
 
 
 export class Model {
@@ -48,6 +48,13 @@ export class Model {
       
         const searchResults = nodes.map(node => new SearchResponse(node.id, node.characters))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
+    }
+
+    async onReindex() {
+        const documentID = this.getCurrentDocumentID()
+        await this.storage.reindex(documentID, figma.root)
+
+        figma.ui.postMessage(newSearchReindexFinishMessage())
     }
 
     getCurrentDocumentID(): string {

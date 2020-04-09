@@ -14,5 +14,9 @@ figma.ui.onmessage = async function(msg) {
     case MessageType.NavigateToNode:
       await model.onNavToNodeRequest(msg.id)
       break
+
+    case MessageType.ReindexStart:
+      await model.onReindex()
+      break
   }
 }

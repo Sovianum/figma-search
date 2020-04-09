@@ -1,6 +1,8 @@
 export enum MessageType {
     SearchRequest = "search_request",
     SearchResponse = "search_response",
+    ReindexStart = "reindexStart",
+    ReindexFinish = "reindexFinish",
     NavigateToNode = "navigate_to_node",
     UpdateModelSettings = "update_model_settings",
     Cancel = "cancel"
@@ -8,6 +10,10 @@ export enum MessageType {
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {
     return new PluginMessage(MessageType.SearchResponse, responses)
+}
+
+export function newSearchReindexFinishMessage(): PluginMessage {
+    return new PluginMessage(MessageType.ReindexFinish, null)
 }
 
 export class PluginMessage {

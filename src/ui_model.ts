@@ -78,13 +78,23 @@ class SearchResults {
 export class UIModel {
     rebuildIndexOnTheFly: boolean
     searchResult: SearchResults
+    headerView: Node & ParentNode
     inputView: HTMLInputElement
     indexOnSearchView: HTMLInputElement
+    reindexView: HTMLInputElement
     responseNode: Node & ParentNode
 
-    constructor(inputView: HTMLInputElement, indexOnSearchView: HTMLInputElement, responseNode: Node & ParentNode) {
+    constructor(
+        headerView: Node & ParentNode,
+        inputView: HTMLInputElement, 
+        indexOnSearchView: HTMLInputElement,
+        reindexView: HTMLInputElement,
+        responseNode: Node & ParentNode
+    ) {
+        this.headerView = headerView
         this.inputView = inputView
         this.indexOnSearchView = indexOnSearchView
+        this.reindexView = reindexView
         this.responseNode = responseNode
 
         this.inputView.addEventListener("keyup", function(event) {
@@ -98,6 +108,33 @@ export class UIModel {
                } }, '*')
             }
         })
+
+        const model = this
+
+        this.reindexView.onclick = function(_) {
+            model.startLoading()
+
+            parent.postMessage({ pluginMessage: { 
+                type: MessageType.ReindexStart
+            } }, '*')
+        }
+    }
+
+    startLoading() {
+        this.headerView.appendChild(this.createLoaderView())
+    }
+
+    stopLoading() {
+        const loader = document.getElementById('loader')
+        loader.parentElement.removeChild(loader)
+    }
+
+    createLoaderView(): Node {
+        const bellDiv = document.createElement('span')
+        bellDiv.className = "visual-bell__spinner"
+        bellDiv.style.float = 'right'
+        bellDiv.id = "loader"
+        return bellDiv
     }
 
     updateSearchResult(results: Array<SearchResultItem>) {

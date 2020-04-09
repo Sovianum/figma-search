@@ -73,6 +73,7 @@ export class IndexValue {
 export interface SearchIndex {
     add(id: any, text: string)
     search(text: string, limit: number): Array<any>
+    remove(id: any)
     updated: number
 }
 
@@ -91,5 +92,9 @@ export class SearchIndexImpl {
 
     search(text: string, limit: number): Array<any> {
         return this.flexSearchIndex.search(text, limit)
+    }
+
+    remove(id: any) {
+        this.flexSearchIndex.remove(id)
     }
 }

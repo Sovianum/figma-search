@@ -1,6 +1,6 @@
-import {getNodePage} from './util'
+import {getNodePage, textFromNode} from './util'
 import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage} from '../message/messages'
+import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage, newNoIndexMessage, newNodeNotFound} from '../message/messages'
 
 
 export class Model {
@@ -11,9 +11,12 @@ export class Model {
     }
 
     async onNavToNodeRequest(id: string) {
+        console.log(id)
         const node = figma.getNodeById(id) as TextNode
+        console.log(node)
         if (!node) {
-            this.logAndThrow(new Error("node not found; update undex"))
+            figma.ui.postMessage(newNodeNotFound(id))
+            return
         }
         
         const page = getNodePage(node)
@@ -35,18 +38,15 @@ export class Model {
 
         const index = await this.storage.getIndex(documentID)
         if (!index) {
-            this.logAndThrow(new Error("send here message to reindex document"))
-        }
-        
-        const week = 1000 * 3600 * 24 * 7
-        if (Date.now() - index.updated > week) {
-            this.logAndThrow(new Error("send here message about expired index"))
+            console.log("here")
+            figma.ui.postMessage(newNoIndexMessage())
+            return
         }
 
-        const nodeIDs = index.search(text, 10)
+        const nodeIDs = index.search(text.toLowerCase(), 100)
         const nodes = nodeIDs.map(id => figma.getNodeById(id)) as Array<TextNode>
       
-        const searchResults = nodes.map(node => new SearchResponse(node.id, node.characters))
+        const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
     }
 
@@ -59,10 +59,5 @@ export class Model {
 
     getCurrentDocumentID(): string {
         return figma.currentPage.parent.id
-    }
-
-    logAndThrow(err) {
-        console.log(err)
-        throw err
     }
 }

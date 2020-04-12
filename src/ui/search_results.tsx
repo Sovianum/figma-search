@@ -2,25 +2,25 @@ import * as React from 'react'
 
 export interface SearchResultProps {
     itemProps: Array<SearchResultItemProps>
-    nothingFound: boolean
+    searchAlert: string
 }
 export class SearchResult extends React.Component<SearchResultProps> {
     render() {
-        if (this.props.nothingFound) {
-            return this.renderNone()
+        if (this.props.searchAlert.length > 0) {
+            return this.renderAlert(this.props.searchAlert)
         }
-        return this.renderSome()
+        return this.renderResult()
     }
 
-    renderNone() {
+    renderAlert(text: string) {
         return <div>
             <p style={{ color: 'red' }} className='type type--pos-large-normal'>
-                Nothing found!
+                {text}
             </p>
         </div>
     }
 
-    renderSome() {
+    renderResult() {
         const items = this.props.itemProps.map(itemProp => {
             return <div key={itemProp.id}>
                 <SearchResultItem 

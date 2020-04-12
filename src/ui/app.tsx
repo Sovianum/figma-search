@@ -16,7 +16,7 @@ export class App extends React.Component<{}, AppState> {
         this.state = {
             searchResults: {
                 itemProps: [],
-                nothingFound: false
+                searchAlert: ""
             },
             reindexOnSearch: false,
             reindexing: false
@@ -42,7 +42,7 @@ export class App extends React.Component<{}, AppState> {
         const state = this.state
         const searchResults = <SearchResult 
             itemProps={state.searchResults.itemProps} 
-            nothingFound={state.searchResults.nothingFound}
+            searchAlert={state.searchResults.searchAlert}
         />
 
         return <div>
@@ -61,19 +61,52 @@ export class App extends React.Component<{}, AppState> {
         '*')
     }
 
-    onSearchResultsUpdated(results: Array<SearchResponse>) {
+    onNodeNotFound(id: string) {
+        this.resetSearchState()
+
         this.setState({
             searchResults: {
-                itemProps: results.map(r => {
-                    return {
-                        id: r.id,
-                        text: r.text,
-                        onClick: this.navigateToNodeCallback(r.id)
-                    }
-                }),
-                nothingFound: results.length === 0
+                itemProps: [],
+                searchAlert: "Node not found. Reindex your document, please"
             }
         })
+    }
+
+    onIndexNotFound() {
+        this.resetSearchState()
+
+        this.setState({
+            searchResults: {
+                itemProps: [],
+                searchAlert: "Index your document, please"
+            }
+        })
+    }
+
+    onSearchResultsUpdated(results: Array<SearchResponse>) {
+        this.resetSearchState()
+
+        if (results.length !== 0) {
+            this.setState({
+                searchResults: {
+                    itemProps: results.map(r => {
+                        return {
+                            id: r.id,
+                            text: r.text,
+                            onClick: this.navigateToNodeCallback(r.id)
+                        }
+                    }),
+                    searchAlert: ""
+                }
+            })
+        } else {
+            this.setState({
+                searchResults: {
+                    itemProps: [],
+                    searchAlert: "Nothing found!"
+                }
+            })
+        }
     }
 
     navigateToNodeCallback(id: string) {
@@ -88,11 +121,8 @@ export class App extends React.Component<{}, AppState> {
 
     startReindexing() {
         console.log('reindexing started')
+        this.resetSearchState()
         this.setState({
-            searchResults: {
-                itemProps: [],
-                nothingFound: false
-            },
             reindexing: true,
         })
         parent.postMessage({ pluginMessage: { 
@@ -103,6 +133,15 @@ export class App extends React.Component<{}, AppState> {
     finishReindexing() {
         this.setState({
             reindexing: false,
+        })
+    }
+
+    resetSearchState() {
+        this.setState({
+            searchResults: {
+                itemProps: [],
+                searchAlert: ""
+            } 
         })
     }
 }

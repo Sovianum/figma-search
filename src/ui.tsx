@@ -15,14 +15,24 @@ onmessage = event => {
     return
   }
 
+  console.log(event)
+
   const msg = event.data.pluginMessage as PluginMessage
   switch (msg.type) {
     case MessageType.SearchResponse:
       app.onSearchResultsUpdated(msg.data as Array<SearchResponse>)
-      break;
+      break
 
     case MessageType.ReindexFinish:
       app.finishReindexing()
-      break;
+      break
+
+    case MessageType.NodeNotFound:
+      app.onNodeNotFound(msg.data as string)
+      break
+
+    case MessageType.NoSearchIndex:
+      app.onIndexNotFound()
+      break
   }
 }

@@ -1,3 +1,5 @@
+import { textFromNode } from "./util";
+
 const FlexSearch = require('flexsearch');
 
 export class IndexStorage {
@@ -21,7 +23,7 @@ export class IndexStorage {
 
         const newIndex = this.makeIndex()
 
-        // i can not use import method directly coz it crashes webpack
+        // i can not use import method directly coz it crashes figma
         newIndex['import'](castedIndexValue.indexDump)
         this.index = new SearchIndexImpl(newIndex, castedIndexValue.updateTime)
 
@@ -39,18 +41,22 @@ export class IndexStorage {
 
     private buildIndex(root: DocumentNode|PageNode): any {
         const index = this.makeIndex();
-    
-        const textNodes = root.findAll(node => node.type == 'TEXT');
+        
+        const indexableTypes = new Set()
+        indexableTypes.add("TEXT")
+        indexableTypes.add("COMPONENT")
+        indexableTypes.add("GROUP")
+        indexableTypes.add("FRAME")
+
+        const textNodes = root.findAll(node => indexableTypes.has(node.type));
         textNodes.forEach(node => {
-            const textNode = node as TextNode
-            index.add(textNode.id, (textNode as TextNode).characters)
+            index.add(node.id, textFromNode(node).toLowerCase())
         })
     
         return index
     }
 
     private makeIndex() {
-        // return new FlexSearch()
         return new FlexSearch({
             encode: false,
             split: /\s+/,

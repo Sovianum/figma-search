@@ -1,7 +1,7 @@
 {
   "name": "search",
   "version": "1.0.0",
-  "description": "Simple text search plugin",
+  "description": "Simple full-text search plugin",
   "main": "code.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,8 @@
     "search",
     "figma"
   ],
-  "author": "Sovianum",
+  "repository": "https://github.com/Sovianum/figma-search",
+  "author": "Klyukvin Artem",
   "license": "MIT",
   "devDependencies": {
     "@types/react": "^16.9.34",

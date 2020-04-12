@@ -1,5 +1,5 @@
-import {Model} from './domain_model'
-import {MessageType} from './messages'
+import {Model} from './domain/model'
+import {MessageType} from './message/messages'
 
 figma.showUI(__html__)
 

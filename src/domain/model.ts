@@ -1,6 +1,6 @@
 import {getNodePage} from './util'
 import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage} from './messages'
+import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage} from '../message/messages'
 
 
 export class Model {

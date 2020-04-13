@@ -1,10 +1,7 @@
 {
   "name": "Search",
-  "id": "search",
+  "id": "831414365050650806",
   "api": "1.0.0",
-  "github":"https://github.com/Sovianum/figma-search",
-  "description": "Search across your figma document ",
-  "instructions": "Right click on the canvas and select 'Search'",
   "main": "dist/code.js",
   "ui": "dist/ui.html"
 }

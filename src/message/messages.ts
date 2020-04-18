@@ -3,6 +3,8 @@ export enum MessageType {
     SearchResponse = "search_response",
     ReindexStart = "reindexStart",
     ReindexFinish = "reindexFinish",
+    IndexLoadStart = "indexLoadStart",
+    IndexLoadFinish = "indexLoadFinish",
     NavigateToNode = "navigate_to_node",
     UpdateModelSettings = "update_model_settings",
     NoSearchIndex = "noSearchIndex",
@@ -17,12 +19,8 @@ export function newNodeNotFound(id: string): PluginMessage {
     return new PluginMessage(MessageType.NodeNotFound, id)
 }
 
-export function newNoIndexMessage(): PluginMessage {
-    return new PluginMessage(MessageType.NoSearchIndex, null)
-}
-
-export function newSearchReindexFinishMessage(): PluginMessage {
-    return new PluginMessage(MessageType.ReindexFinish, null)
+export function newTypePluginMessage(typ: MessageType): PluginMessage {
+    return new PluginMessage(typ, null)
 }
 
 export class PluginMessage {

@@ -6,7 +6,7 @@ import { MessageType, SearchResponse } from '../message/messages'
 export interface AppState {
     searchResults: SearchResultProps
     reindexOnSearch: boolean
-    reindexing: boolean
+    loading: boolean
 }
 
 export class App extends React.Component<{}, AppState> {
@@ -19,7 +19,7 @@ export class App extends React.Component<{}, AppState> {
                 searchAlert: ""
             },
             reindexOnSearch: false,
-            reindexing: false
+            loading: false
         }
 
         this.startReindexing = this.startReindexing.bind(this)
@@ -34,7 +34,7 @@ export class App extends React.Component<{}, AppState> {
                 onButtonClick={this.startReindexing} 
                 onToggleSwitch={this.switchReindexOnSearch} 
                 onSearchSubmit={this.onSearchSubmit}
-                reindexing={this.state.reindexing}
+                reindexing={this.state.loading}
             />
             <div className='divider' />
         </div>
@@ -123,16 +123,32 @@ export class App extends React.Component<{}, AppState> {
         console.log('reindexing started')
         this.resetSearchState()
         this.setState({
-            reindexing: true,
+            loading: true,
         })
         parent.postMessage({ pluginMessage: { 
             type: MessageType.ReindexStart
         } }, '*')
     }
 
+    loadIndex() {
+        this.resetSearchState()
+        this.setState({
+            loading: true
+        })
+        parent.postMessage({pluginMessage: {
+            type: MessageType.IndexLoadStart
+        }}, "*")
+    }
+
     finishReindexing() {
         this.setState({
-            reindexing: false,
+            loading: false,
+        })
+    }
+
+    finishLoadingIndex() {
+        this.setState({
+            loading: false,
         })
     }
 

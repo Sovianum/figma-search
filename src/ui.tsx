@@ -7,7 +7,10 @@ import * as React from 'react'
 import { App } from './ui/app'
 
 let app: App = null
-ReactDOM.render(<App ref={ref => app = ref}/>, document.getElementById('react-page'))
+ReactDOM.render(<App ref={ref => {
+  app = ref
+  app.loadIndex()
+}}/>, document.getElementById('react-page'))
 
 onmessage = event => {
   if (!app) {
@@ -25,6 +28,10 @@ onmessage = event => {
 
     case MessageType.ReindexFinish:
       app.finishReindexing()
+      break
+
+    case MessageType.IndexLoadFinish:
+      app.finishLoadingIndex()
       break
 
     case MessageType.NodeNotFound:

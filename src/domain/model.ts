@@ -28,6 +28,7 @@ export class Model {
     }
 
     async onSearchRequest(text: string, indexOnSearch: boolean) {
+        console.log("called on search request")
         const documentID = this.getCurrentDocumentID()
 
         if (indexOnSearch) {
@@ -39,18 +40,29 @@ export class Model {
             figma.ui.postMessage(newNoIndexMessage())
             return
         }
+        
+        const nodeDocuments = index.search(text.toLowerCase(), {
+            field: [
+                "text"
+            ],
+            limit: 100
+        })
+        console.log("node ids are", nodeDocuments)
 
-        const nodeIDs = index.search(text.toLowerCase(), 100)
-        const nodes = nodeIDs.map(id => figma.getNodeById(id)) as Array<TextNode>
-      
-        const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
-        figma.ui.postMessage(newSearchResponseMessage(searchResults))
+        const nodes = nodeDocuments.map(doc => figma.getNodeById(doc.id)).filter(node => node) as Array<TextNode>
+        console.log(nodes)
+        try { 
+            const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
+            figma.ui.postMessage(newSearchResponseMessage(searchResults))
+        } catch (e) {
+            console.log(e)
+
+        }
     }
 
     async onReindex() {
         const documentID = this.getCurrentDocumentID()
         await this.storage.reindex(documentID, figma.root)
-
         figma.ui.postMessage(newSearchReindexFinishMessage())
     }
 

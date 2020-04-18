@@ -1,6 +1,6 @@
 import {getNodePage, textFromNode} from './util'
 import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage, newSearchReindexFinishMessage, newNoIndexMessage, newNodeNotFound} from '../message/messages'
+import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType} from '../message/messages'
 
 
 export class Model {
@@ -36,13 +36,18 @@ export class Model {
 
         const index = await this.storage.getIndex(documentID)
         if (!index) {
-            figma.ui.postMessage(newNoIndexMessage())
+            figma.ui.postMessage(newTypePluginMessage(MessageType.NoSearchIndex))
             return
         }
+        
+        const nodeDocuments = index.search(text.toLowerCase(), {
+            field: [
+                "text"
+            ],
+            limit: 100
+        })
 
-        const nodeIDs = index.search(text.toLowerCase(), 100)
-        const nodes = nodeIDs.map(id => figma.getNodeById(id)) as Array<TextNode>
-      
+        const nodes = nodeDocuments.map(doc => figma.getNodeById(doc.id)).filter(node => node) as Array<TextNode>
         const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
     }
@@ -50,8 +55,12 @@ export class Model {
     async onReindex() {
         const documentID = this.getCurrentDocumentID()
         await this.storage.reindex(documentID, figma.root)
+        figma.ui.postMessage(newTypePluginMessage(MessageType.ReindexFinish))
+    }
 
-        figma.ui.postMessage(newSearchReindexFinishMessage())
+    async onIndexLoad() {
+        await this.storage.getIndex(this.getCurrentDocumentID())
+        figma.ui.postMessage(newTypePluginMessage(MessageType.IndexLoadFinish))
     }
 
     getCurrentDocumentID(): string {

@@ -18,5 +18,9 @@ figma.ui.onmessage = async function(msg) {
     case MessageType.ReindexStart:
       await model.onReindex()
       break
+
+    case MessageType.IndexLoadStart:
+      await model.onIndexLoad()
+      break
   }
 }

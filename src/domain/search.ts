@@ -1,6 +1,7 @@
 import { textFromNode } from "./util";
 
 const FlexSearch = require('flexsearch');
+const LZUTF8 = require('lzutf8');
 
 export class IndexStorage {
     index: SearchIndex|undefined
@@ -10,22 +11,23 @@ export class IndexStorage {
     }
 
     async getIndex(documentID: string): Promise<SearchIndex> {
+        console.log("called get index")
         if (this.index) {
+            console.log("returned local copy")
             return this.index
         }
 
-        const indexValue = await figma.clientStorage.getAsync(documentID)
-        if (!indexValue) {
+        const storedIndex = await figma.clientStorage.getAsync(documentID) as IndexValue
+        if (!storedIndex) {
             return null
         }
 
-        const castedIndexValue = indexValue as IndexValue
-
+        const uncompressed = LZUTF8.decompress(storedIndex.indexDump)
         const newIndex = this.makeIndex()
 
         // i can not use import method directly coz it crashes figma
-        newIndex['import'](castedIndexValue.indexDump)
-        this.index = new SearchIndexImpl(newIndex, castedIndexValue.updateTime)
+        newIndex['import'](uncompressed)
+        this.index = new SearchIndexImpl(newIndex, storedIndex.updateTime)
 
         return this.index
     }
@@ -35,7 +37,8 @@ export class IndexStorage {
         const indexDump = index.export()
         
         const updated = Date.now()
-        await figma.clientStorage.setAsync(documentID, new IndexValue(indexDump, updated))
+        let compressedIndexDump = LZUTF8.compress(indexDump)
+        await figma.clientStorage.setAsync(documentID, new IndexValue(compressedIndexDump, updated))
         this.index = new SearchIndexImpl(index, updated)
     }
 
@@ -49,9 +52,14 @@ export class IndexStorage {
         indexableTypes.add("FRAME")
 
         const textNodes = root.findAll(node => indexableTypes.has(node.type));
-        textNodes.forEach(node => {
-            index.add(node.id, textFromNode(node).toLowerCase())
+        const searchDocuments = textNodes.map(node => {
+            return {
+                "id": node.id,
+                "text": textFromNode(node).toLowerCase()
+            }
         })
+        
+        index.add(searchDocuments)
     
         return index
     }
@@ -60,25 +68,33 @@ export class IndexStorage {
         return new FlexSearch({
             encode: false,
             split: /\s+/,
-            tokenize: "forward"
+            tokenize: "forward",
+            doc: {
+                id: "id",
+                field: "text"
+            }
         })
     }
 
 }
 
 export class IndexValue {
-    constructor(dump: string, updated: number) {
+    constructor(dump: any, updated: number) {
         this.indexDump = dump
         this.updateTime = updated
     }
 
-    indexDump: string
+    indexDump: any
     updateTime: number
 }
 
+export interface NodeDocument {
+    id: string
+    text: string
+}
+
 export interface SearchIndex {
-    add(id: any, text: string)
-    search(text: string, limit: number): Array<any>
+    search(text: string, selector: any): Array<NodeDocument>
     remove(id: any)
     updated: number
 }
@@ -92,12 +108,8 @@ export class SearchIndexImpl {
         this.updated = updated
     }
 
-    add(id: any, text: string) {
-        this.flexSearchIndex.update(id, text)
-    }
-
-    search(text: string, limit: number): Array<any> {
-        return this.flexSearchIndex.search(text, limit)
+    search(text: string, selector: any): Array<NodeDocument> {
+        return this.flexSearchIndex.search(text, selector)
     }
 
     remove(id: any) {

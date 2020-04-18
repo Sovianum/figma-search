@@ -21,22 +21,13 @@ export class IndexStorage {
         if (!storedIndex) {
             return null
         }
-        
-        console.log("loaded index value", storedIndex)
 
         const uncompressed = LZUTF8.decompress(storedIndex.indexDump)
-
-        console.log("uncompressed index value")
-
         const newIndex = this.makeIndex()
-
-        console.log("made index")
 
         // i can not use import method directly coz it crashes figma
         newIndex['import'](uncompressed)
         this.index = new SearchIndexImpl(newIndex, storedIndex.updateTime)
-
-        console.log("index updated", this.index)
 
         return this.index
     }
@@ -52,7 +43,6 @@ export class IndexStorage {
     }
 
     private buildIndex(root: DocumentNode|PageNode): any {
-        console.log("index building started")
         const index = this.makeIndex();
         
         const indexableTypes = new Set()
@@ -68,11 +58,8 @@ export class IndexStorage {
                 "text": textFromNode(node).toLowerCase()
             }
         })
-        console.log("documents built")
         
         index.add(searchDocuments)
-
-        console.log("documents added")
     
         return index
     }

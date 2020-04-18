@@ -28,7 +28,6 @@ export class Model {
     }
 
     async onSearchRequest(text: string, indexOnSearch: boolean) {
-        console.log("called on search request")
         const documentID = this.getCurrentDocumentID()
 
         if (indexOnSearch) {
@@ -47,17 +46,10 @@ export class Model {
             ],
             limit: 100
         })
-        console.log("node ids are", nodeDocuments)
 
         const nodes = nodeDocuments.map(doc => figma.getNodeById(doc.id)).filter(node => node) as Array<TextNode>
-        console.log(nodes)
-        try { 
-            const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
-            figma.ui.postMessage(newSearchResponseMessage(searchResults))
-        } catch (e) {
-            console.log(e)
-
-        }
+        const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
+        figma.ui.postMessage(newSearchResponseMessage(searchResults))
     }
 
     async onReindex() {

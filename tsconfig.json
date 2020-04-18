@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "jsx": "react",
-    "experimentalDecorators": true
+    "jsx": "react"
   }
 }

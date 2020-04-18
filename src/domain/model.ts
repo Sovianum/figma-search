@@ -11,9 +11,7 @@ export class Model {
     }
 
     async onNavToNodeRequest(id: string) {
-        console.log(id)
         const node = figma.getNodeById(id) as TextNode
-        console.log(node)
         if (!node) {
             figma.ui.postMessage(newNodeNotFound(id))
             return
@@ -38,7 +36,6 @@ export class Model {
 
         const index = await this.storage.getIndex(documentID)
         if (!index) {
-            console.log("here")
             figma.ui.postMessage(newNoIndexMessage())
             return
         }

@@ -1,15 +1,9 @@
 import { IndexableTypes } from "../domain/search";
 
 export interface UserSettings {
-    indexSettings: IndexSettings
-    searchSettings: SearchSettings
-}
-
-export interface IndexSettings {
-    reindexOnSearch: boolean
+    searchSettings?: SearchSettings
 }
 
 export interface SearchSettings {
-    searchAll: boolean
-    nodeTypes: Array<IndexableTypes>
+    searchableNodes: Map<IndexableTypes, boolean>
 }

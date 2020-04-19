@@ -2,27 +2,24 @@ import * as React from 'react'
 import { getUniqueID } from './util'
 import { Column, Row } from 'simple-flexbox';
 import { IndexableTypes } from '../domain/search';
+import { UserSettings } from '../settings/settings';
 
 interface SearchHeaderProps {
+    reindexing: boolean
+    userSettings: UserSettings
     onButtonClick()
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
-    reindexing: boolean
+    onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
 }
-export class SearchHeader extends React.Component<SearchHeaderProps, Map<IndexableTypes, boolean>> {
-    constructor(props) {
-        super(props)
-        this.state = new Map<IndexableTypes, boolean>()
-    }
-
+export class SearchHeader extends React.Component<SearchHeaderProps> {
     render() {
         const mainHeader = <div>
             <SearchInput onSubmit={this.props.onSearchSubmit} />
             <ReindexBar onButtonClick={this.props.onButtonClick} onToggleSwitch={this.props.onToggleSwitch} />
-            <NodeTypesCheckboxes 
-                enabled={true} 
-                currFlags={this.state}
-                onCheckboxUpdate={this.onCheckboxUpdate.bind(this)}
+            <NodeTypesCheckboxes
+                currFlags={this.props.userSettings.searchSettings.searchableNodes}
+                onCheckboxUpdate={this.props.onNodeCheckboxClick}
             />
         </div>
 
@@ -35,16 +32,9 @@ export class SearchHeader extends React.Component<SearchHeaderProps, Map<Indexab
             <span style={{display: 'flex',  justifyContent:'center', alignItems:'center'}} className="visual-bell__spinner"></span>
         </div>
     }
-
-    onCheckboxUpdate(type: IndexableTypes, checked: boolean) {
-        const stateUpdate = {}
-        stateUpdate[type] = checked
-        this.setState(stateUpdate)
-    }
 }
 
 interface NodeTypesCheckboxesProps {
-    enabled: boolean
     currFlags: Readonly<Map<IndexableTypes, boolean>>
     onCheckboxUpdate(type: IndexableTypes, state: boolean)
 }
@@ -60,21 +50,18 @@ class NodeTypesCheckboxes extends React.Component<NodeTypesCheckboxesProps> {
             <Column flexGrow={1} horizontal='start'>
                 <Checkbox 
                     label='Text' 
-                    enabled={this.props.enabled} 
                     checked={this.props.currFlags[IndexableTypes.TEXT]}
                     onClick={this.makeCheckboxCallback(IndexableTypes.TEXT)}
                 />
             </Column>
                 <Checkbox 
                     label='Component' 
-                    enabled={this.props.enabled}
                     checked={this.props.currFlags[IndexableTypes.COMPONENT]}
                     onClick={this.makeCheckboxCallback(IndexableTypes.COMPONENT)}
                 />
             <Column flexGrow={1} horizontal='start'>
                 <Checkbox 
                     label='Group' 
-                    enabled={this.props.enabled}
                     checked={this.props.currFlags[IndexableTypes.GROUP]}
                     onClick={this.makeCheckboxCallback(IndexableTypes.GROUP)}
                 />
@@ -82,7 +69,6 @@ class NodeTypesCheckboxes extends React.Component<NodeTypesCheckboxesProps> {
             <Column flexGrow={1} horizontal='start'>
                 <Checkbox 
                     label='Frame' 
-                    enabled={this.props.enabled}
                     checked={this.props.currFlags[IndexableTypes.FRAME]}
                     onClick={this.makeCheckboxCallback(IndexableTypes.FRAME)}
                 />
@@ -92,11 +78,8 @@ class NodeTypesCheckboxes extends React.Component<NodeTypesCheckboxesProps> {
 
     makeCheckboxCallback(type: IndexableTypes): () => void {
         return () => {
-            if (!this.props.enabled) {
-                return
-            }
-
-            const currState = this.props.currFlags[type] as boolean
+            console.log(this.props.currFlags)
+            const currState = this.props.currFlags.get(type) as boolean
 
             this.props.onCheckboxUpdate(type, !currState)
         }
@@ -106,7 +89,6 @@ class NodeTypesCheckboxes extends React.Component<NodeTypesCheckboxesProps> {
 interface CheckboxProps { 
     onClick()
     label: string
-    enabled: boolean
     checked: boolean
 }
 class Checkbox extends React.Component<CheckboxProps> {
@@ -118,8 +100,7 @@ class Checkbox extends React.Component<CheckboxProps> {
             type: "checkbox",
             className: "checkbox__box",
             onClick: this.props.onClick,
-            defaultChecked: this.props.checked,
-            disabled: !this.props.enabled
+            defaultChecked: this.props.checked
         })
 
         return <div className="checkbox">

@@ -10,6 +10,7 @@ import { UserSettings } from './settings/settings'
 let app: App = null
 ReactDOM.render(<App ref={ref => {
   app = ref
+  app.loadSettings()
   app.loadIndex()
 }}/>, document.getElementById('react-page'))
 

@@ -179,6 +179,12 @@ export class App extends React.Component<{}, AppState> {
         }}, "*")
     }
 
+    loadSettings() {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.UserSettingsLoadStart
+        }}, "*")
+    }
+
     finishReindexing() {
         this.setState({
             loading: false,

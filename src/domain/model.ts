@@ -96,6 +96,11 @@ export class Model {
         figma.ui.postMessage(newUserSettingsUpdateFinish(userSettings))
     }
 
+    async onUserSettingsLoad() {
+        const extractedSettings = await this.settingsStorage.getSettings(this.getCurrentDocumentID())
+        figma.ui.postMessage(newUserSettingsUpdateFinish(extractedSettings))
+    }
+
     getCurrentDocumentID(): string {
         return figma.currentPage.parent.id
     }

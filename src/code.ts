@@ -28,5 +28,9 @@ figma.ui.onmessage = async function(msg) {
       const userSettings = JSON.parse(msg.userSettingsStr) as UserSettings
       await model.onUserSettingsUpdate(userSettings)
       break
+
+    case MessageType.UserSettingsLoadStart:
+      await model.onUserSettingsLoad()
+      break
   }
 }

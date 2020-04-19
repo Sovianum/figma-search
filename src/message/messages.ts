@@ -11,7 +11,8 @@ export enum MessageType {
     NoSearchIndex = "noSearchIndex",
     NodeNotFound = "nodeNotFound",
     UserSettingsUpdateStart = "userSettingsUpdateStart",
-    UserSettingsUpdateFinish = "userSettingsUpdateFinish"
+    UserSettingsUpdateFinish = "userSettingsUpdateFinish",
+    UserSettingsLoadStart = "userSettingsLoadStart"
 }
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {

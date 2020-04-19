@@ -3,6 +3,13 @@ import { textFromNode } from "./util";
 const FlexSearch = require('flexsearch');
 const LZUTF8 = require('lzutf8');
 
+export enum IndexableTypes {
+    TEXT = "TEXT",
+    COMPONENT = "COMPONENT",
+    GROUP = "GROUP",
+    FRAME = "FRAME"
+}
+
 export class IndexStorage {
     index: SearchIndex|undefined
 
@@ -46,10 +53,10 @@ export class IndexStorage {
         const index = this.makeIndex();
         
         const indexableTypes = new Set()
-        indexableTypes.add("TEXT")
-        indexableTypes.add("COMPONENT")
-        indexableTypes.add("GROUP")
-        indexableTypes.add("FRAME")
+        indexableTypes.add(IndexableTypes.TEXT)
+        indexableTypes.add(IndexableTypes.COMPONENT)
+        indexableTypes.add(IndexableTypes.GROUP)
+        indexableTypes.add(IndexableTypes.FRAME)
 
         const textNodes = root.findAll(node => indexableTypes.has(node.type));
         const searchDocuments = textNodes.map(node => {

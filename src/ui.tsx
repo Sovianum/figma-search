@@ -21,6 +21,9 @@ onmessage = event => {
   console.log(event)
 
   const msg = event.data.pluginMessage as PluginMessage
+  if (!msg) {
+    return
+  }
   switch (msg.type) {
     case MessageType.SearchResponse:
       app.onSearchResultsUpdated(msg.data as Array<SearchResponse>)

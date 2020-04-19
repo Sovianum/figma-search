@@ -35,7 +35,7 @@ export class SearchHeader extends React.Component<SearchHeaderProps> {
 }
 
 interface NodeTypesCheckboxesProps {
-    currFlags: Readonly<Map<IndexableTypes, boolean>>
+    currFlags: object
     onCheckboxUpdate(type: IndexableTypes, state: boolean)
 }
 
@@ -78,8 +78,7 @@ class NodeTypesCheckboxes extends React.Component<NodeTypesCheckboxesProps> {
 
     makeCheckboxCallback(type: IndexableTypes): () => void {
         return () => {
-            console.log(this.props.currFlags)
-            const currState = this.props.currFlags.get(type) as boolean
+            const currState = this.props.currFlags[type] as boolean
 
             this.props.onCheckboxUpdate(type, !currState)
         }

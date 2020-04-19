@@ -24,7 +24,7 @@ export class IndexStorage {
             return this.index
         }
 
-        const storedIndex = await figma.clientStorage.getAsync(documentID) as IndexValue
+        const storedIndex = await figma.clientStorage.getAsync(this.getIndexID(documentID)) as IndexValue
         if (!storedIndex) {
             return null
         }
@@ -45,7 +45,7 @@ export class IndexStorage {
         
         const updated = Date.now()
         let compressedIndexDump = LZUTF8.compress(indexDump)
-        await figma.clientStorage.setAsync(documentID, new IndexValue(compressedIndexDump, updated))
+        await figma.clientStorage.setAsync(this.getIndexID(documentID), new IndexValue(compressedIndexDump, updated))
         this.index = new SearchIndexImpl(index, updated)
     }
 
@@ -81,6 +81,10 @@ export class IndexStorage {
                 field: "text"
             }
         })
+    }
+
+    private getIndexID(documentID: string): string {
+        return "index_" + documentID
     }
 
 }

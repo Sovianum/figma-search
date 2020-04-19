@@ -1,13 +1,17 @@
 import {getNodePage, textFromNode} from './util'
 import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType} from '../message/messages'
+import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType, newUserSettingsUpdateFinish} from '../message/messages'
+import { SettingsStorage } from './user_settings'
+import { UserSettings } from '../settings/settings'
 
 
 export class Model {
-    storage: IndexStorage
+    indexStorage: IndexStorage
+    settingsStorage: SettingsStorage
 
     constructor() {
-        this.storage = new IndexStorage()
+        this.indexStorage = new IndexStorage()
+        this.settingsStorage = new SettingsStorage()
     }
 
     async onNavToNodeRequest(id: string) {
@@ -31,10 +35,10 @@ export class Model {
         const documentID = this.getCurrentDocumentID()
 
         if (indexOnSearch) {
-            await this.storage.reindex(documentID, figma.root)
+            await this.indexStorage.reindex(documentID, figma.root)
         }
 
-        const index = await this.storage.getIndex(documentID)
+        const index = await this.indexStorage.getIndex(documentID)
         if (!index) {
             figma.ui.postMessage(newTypePluginMessage(MessageType.NoSearchIndex))
             return
@@ -54,13 +58,18 @@ export class Model {
 
     async onReindex() {
         const documentID = this.getCurrentDocumentID()
-        await this.storage.reindex(documentID, figma.root)
+        await this.indexStorage.reindex(documentID, figma.root)
         figma.ui.postMessage(newTypePluginMessage(MessageType.ReindexFinish))
     }
 
     async onIndexLoad() {
-        await this.storage.getIndex(this.getCurrentDocumentID())
+        await this.indexStorage.getIndex(this.getCurrentDocumentID())
         figma.ui.postMessage(newTypePluginMessage(MessageType.IndexLoadFinish))
+    }
+
+    async onUserSettingsUpdate(userSettings: UserSettings) {
+        await this.settingsStorage.setSettings(this.getCurrentDocumentID(), userSettings)
+        figma.ui.postMessage(newUserSettingsUpdateFinish(userSettings))
     }
 
     getCurrentDocumentID(): string {

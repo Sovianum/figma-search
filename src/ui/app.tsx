@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {SearchHeader} from './header'
 import {SearchResultProps, SearchResult} from './search_results'
-import { MessageType, SearchResponse } from '../message/messages'
+import { MessageType, SearchResponse} from '../message/messages'
 import { UserSettings } from '../settings/settings'
 import { IndexableTypes } from '../domain/search'
 
@@ -64,9 +64,9 @@ export class App extends React.Component<{}, AppState> {
 
     onSearchSubmit(text: string) {
         parent.postMessage({ pluginMessage: { 
-                type: MessageType.SearchRequest, 
-                text: text,
-                indexOnSearch: this.state.reindexOnSearch
+                    type: MessageType.SearchRequest, 
+                    text: text,
+                    indexOnSearch: this.state.reindexOnSearch
                 } 
             }, 
         '*')
@@ -122,7 +122,7 @@ export class App extends React.Component<{}, AppState> {
 
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean) {
         const currSearchableNodes = this.state.userSettings.searchSettings.searchableNodes
-        currSearchableNodes.set(type, checked)
+        currSearchableNodes[type] = checked
 
         this.setState({
             userSettings: {
@@ -131,6 +131,21 @@ export class App extends React.Component<{}, AppState> {
                 }
             }
         })
+
+        this.updateUserSettingsInModel()
+    }
+
+    onSettingsUpdateFinished(userSettings: UserSettings) {
+        this.setState({
+            userSettings: userSettings
+        })
+    }
+
+    updateUserSettingsInModel() {
+        parent.postMessage({ pluginMessage: {
+            type: MessageType.UserSettingsUpdateStart,
+            userSettingsStr: JSON.stringify(this.state.userSettings)
+        }}, '*')
     }
 
     navigateToNodeCallback(id: string) {

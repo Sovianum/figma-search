@@ -3,6 +3,13 @@ import { textFromNode } from "./util";
 const FlexSearch = require('flexsearch');
 const LZUTF8 = require('lzutf8');
 
+export enum IndexableTypes {
+    TEXT = "TEXT",
+    COMPONENT = "COMPONENT",
+    GROUP = "GROUP",
+    FRAME = "FRAME"
+}
+
 export class IndexStorage {
     index: SearchIndex|undefined
 
@@ -17,7 +24,7 @@ export class IndexStorage {
             return this.index
         }
 
-        const storedIndex = await figma.clientStorage.getAsync(documentID) as IndexValue
+        const storedIndex = await figma.clientStorage.getAsync(this.getIndexID(documentID)) as IndexValue
         if (!storedIndex) {
             return null
         }
@@ -38,7 +45,7 @@ export class IndexStorage {
         
         const updated = Date.now()
         let compressedIndexDump = LZUTF8.compress(indexDump)
-        await figma.clientStorage.setAsync(documentID, new IndexValue(compressedIndexDump, updated))
+        await figma.clientStorage.setAsync(this.getIndexID(documentID), new IndexValue(compressedIndexDump, updated))
         this.index = new SearchIndexImpl(index, updated)
     }
 
@@ -46,34 +53,46 @@ export class IndexStorage {
         const index = this.makeIndex();
         
         const indexableTypes = new Set()
-        indexableTypes.add("TEXT")
-        indexableTypes.add("COMPONENT")
-        indexableTypes.add("GROUP")
-        indexableTypes.add("FRAME")
+        indexableTypes.add(IndexableTypes.TEXT)
+        indexableTypes.add(IndexableTypes.COMPONENT)
+        indexableTypes.add(IndexableTypes.GROUP)
+        indexableTypes.add(IndexableTypes.FRAME)
 
         const textNodes = root.findAll(node => indexableTypes.has(node.type));
-        const searchDocuments = textNodes.map(node => {
-            return {
-                "id": node.id,
-                "text": textFromNode(node).toLowerCase()
-            }
-        })
+        const searchDocuments = textNodes.map(node => this.makeSearchDocument(node))
         
         index.add(searchDocuments)
     
         return index
     }
 
+    private makeSearchDocument(node: PageNode | SceneNode): SearchDocument {
+        return {
+            id: node.id,
+            text: textFromNode(node).toLowerCase(),
+            type: node.type
+        }
+    } 
+
     private makeIndex() {
+        const docDescriptor = {
+            id: "id",
+            field: [
+                "text",
+                "type"
+            ]
+        }
+
         return new FlexSearch({
             encode: false,
             split: /\s+/,
             tokenize: "forward",
-            doc: {
-                id: "id",
-                field: "text"
-            }
+            doc: docDescriptor
         })
+    }
+
+    private getIndexID(documentID: string): string {
+        return "index_" + documentID
     }
 
 }
@@ -88,13 +107,15 @@ export class IndexValue {
     updateTime: number
 }
 
-export interface NodeDocument {
+export interface SearchDocument {
     id: string
     text: string
+    type: string
 }
 
+
 export interface SearchIndex {
-    search(text: string, selector: any): Array<NodeDocument>
+    search(text: string, selector: any): Array<SearchDocument>
     remove(id: any)
     updated: number
 }
@@ -108,7 +129,7 @@ export class SearchIndexImpl {
         this.updated = updated
     }
 
-    search(text: string, selector: any): Array<NodeDocument> {
+    search(text: string, selector: any): Array<SearchDocument> {
         return this.flexSearchIndex.search(text, selector)
     }
 

@@ -1,5 +1,6 @@
 import {Model} from './domain/model'
 import {MessageType} from './message/messages'
+import { UserSettings } from './settings/settings'
 
 figma.showUI(__html__)
 
@@ -21,6 +22,15 @@ figma.ui.onmessage = async function(msg) {
 
     case MessageType.IndexLoadStart:
       await model.onIndexLoad()
+      break
+
+    case MessageType.UserSettingsUpdateStart:
+      const userSettings = JSON.parse(msg.userSettingsStr) as UserSettings
+      await model.onUserSettingsUpdate(userSettings)
+      break
+
+    case MessageType.UserSettingsLoadStart:
+      await model.onUserSettingsLoad()
       break
   }
 }

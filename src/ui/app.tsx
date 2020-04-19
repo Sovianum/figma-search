@@ -1,10 +1,13 @@
 import * as React from 'react'
 import {SearchHeader} from './header'
 import {SearchResultProps, SearchResult} from './search_results'
-import { MessageType, SearchResponse } from '../message/messages'
+import { MessageType, SearchResponse} from '../message/messages'
+import { UserSettings } from '../settings/settings'
+import { IndexableTypes } from '../domain/search'
 
 export interface AppState {
     searchResults: SearchResultProps
+    userSettings: UserSettings
     reindexOnSearch: boolean
     loading: boolean
 }
@@ -19,22 +22,30 @@ export class App extends React.Component<{}, AppState> {
                 searchAlert: ""
             },
             reindexOnSearch: false,
-            loading: false
+            loading: false,
+            userSettings: {
+                searchSettings: {
+                    searchableNodes: new Map<IndexableTypes, boolean>()
+                }
+            }
         }
 
         this.startReindexing = this.startReindexing.bind(this)
         this.switchReindexOnSearch = this.switchReindexOnSearch.bind(this)
         this.onSearchSubmit = this.onSearchSubmit.bind(this)
         this.navigateToNodeCallback = this.navigateToNodeCallback.bind(this)
+        this.onNodeCheckboxClick = this.onNodeCheckboxClick.bind(this)
     }
 
     render() {
         const header = <div>
             <SearchHeader 
+                reindexing={this.state.loading}
+                userSettings={this.state.userSettings}
                 onButtonClick={this.startReindexing} 
                 onToggleSwitch={this.switchReindexOnSearch} 
                 onSearchSubmit={this.onSearchSubmit}
-                reindexing={this.state.loading}
+                onNodeCheckboxClick={this.onNodeCheckboxClick}
             />
             <div className='divider' />
         </div>
@@ -53,9 +64,9 @@ export class App extends React.Component<{}, AppState> {
 
     onSearchSubmit(text: string) {
         parent.postMessage({ pluginMessage: { 
-                type: MessageType.SearchRequest, 
-                text: text,
-                indexOnSearch: this.state.reindexOnSearch
+                    type: MessageType.SearchRequest, 
+                    text: text,
+                    indexOnSearch: this.state.reindexOnSearch
                 } 
             }, 
         '*')
@@ -109,6 +120,34 @@ export class App extends React.Component<{}, AppState> {
         }
     }
 
+    onNodeCheckboxClick(type: IndexableTypes, checked: boolean) {
+        const currSearchableNodes = this.state.userSettings.searchSettings.searchableNodes
+        currSearchableNodes[type] = checked
+
+        this.setState({
+            userSettings: {
+                searchSettings: {
+                    searchableNodes: currSearchableNodes
+                }
+            }
+        })
+
+        this.updateUserSettingsInModel()
+    }
+
+    onSettingsUpdateFinished(userSettings: UserSettings) {
+        this.setState({
+            userSettings: userSettings
+        })
+    }
+
+    updateUserSettingsInModel() {
+        parent.postMessage({ pluginMessage: {
+            type: MessageType.UserSettingsUpdateStart,
+            userSettingsStr: JSON.stringify(this.state.userSettings)
+        }}, '*')
+    }
+
     navigateToNodeCallback(id: string) {
         return () => parent.postMessage({ pluginMessage: { type: MessageType.NavigateToNode, id } }, '*')
     }
@@ -137,6 +176,12 @@ export class App extends React.Component<{}, AppState> {
         })
         parent.postMessage({pluginMessage: {
             type: MessageType.IndexLoadStart
+        }}, "*")
+    }
+
+    loadSettings() {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.UserSettingsLoadStart
         }}, "*")
     }
 

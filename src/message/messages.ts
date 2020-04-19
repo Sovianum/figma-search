@@ -1,3 +1,5 @@
+import { UserSettings } from "../settings/settings"
+
 export enum MessageType {
     SearchRequest = "search_request",
     SearchResponse = "search_response",
@@ -6,9 +8,11 @@ export enum MessageType {
     IndexLoadStart = "indexLoadStart",
     IndexLoadFinish = "indexLoadFinish",
     NavigateToNode = "navigate_to_node",
-    UpdateModelSettings = "update_model_settings",
     NoSearchIndex = "noSearchIndex",
-    NodeNotFound = "nodeNotFound"
+    NodeNotFound = "nodeNotFound",
+    UserSettingsUpdateStart = "userSettingsUpdateStart",
+    UserSettingsUpdateFinish = "userSettingsUpdateFinish",
+    UserSettingsLoadStart = "userSettingsLoadStart"
 }
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {
@@ -19,8 +23,12 @@ export function newNodeNotFound(id: string): PluginMessage {
     return new PluginMessage(MessageType.NodeNotFound, id)
 }
 
-export function newTypePluginMessage(typ: MessageType): PluginMessage {
-    return new PluginMessage(typ, null)
+export function newTypePluginMessage(type: MessageType): PluginMessage {
+    return new PluginMessage(type, null)
+}
+
+export function newUserSettingsUpdateFinish(settings: UserSettings): PluginMessage {
+    return new PluginMessage(MessageType.UserSettingsUpdateFinish, JSON.stringify(settings))
 }
 
 export class PluginMessage {

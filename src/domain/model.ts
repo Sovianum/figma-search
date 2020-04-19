@@ -44,16 +44,40 @@ export class Model {
             return
         }
         
-        const nodeDocuments = index.search(text.toLowerCase(), {
-            field: [
-                "text"
-            ],
-            limit: 100
-        })
+        const nodeDocuments = await this.findNodeDocuments(index, text.toLowerCase())
 
         const nodes = nodeDocuments.map(doc => figma.getNodeById(doc.id)).filter(node => node) as Array<TextNode>
         const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
+    }
+
+    async findNodeDocuments(index, text: string) {
+        const selector = {
+            field: [
+                "text"
+            ]
+        }
+
+        const allDocs = index.search(text.toLowerCase(), selector)
+
+        const settings = await this.settingsStorage.getSettings(this.getCurrentDocumentID())
+        if (!settings) {
+            return allDocs
+        }
+
+        const searchableNodes = settings.searchSettings.searchableNodes
+        const searchableTypes = new Set<string>()
+        for (let key in searchableNodes) {
+            if (searchableNodes[key]) {
+                searchableTypes.add(key)
+            }
+        }
+
+        if (searchableTypes.size === 0) {
+            return allDocs
+        }
+
+        return allDocs.filter(doc => searchableTypes.has(doc.type))
     }
 
     async onReindex() {

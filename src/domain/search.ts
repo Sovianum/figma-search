@@ -59,27 +59,35 @@ export class IndexStorage {
         indexableTypes.add(IndexableTypes.FRAME)
 
         const textNodes = root.findAll(node => indexableTypes.has(node.type));
-        const searchDocuments = textNodes.map(node => {
-            return {
-                "id": node.id,
-                "text": textFromNode(node).toLowerCase()
-            }
-        })
+        const searchDocuments = textNodes.map(node => this.makeSearchDocument(node))
         
         index.add(searchDocuments)
     
         return index
     }
 
+    private makeSearchDocument(node: PageNode | SceneNode): SearchDocument {
+        return {
+            id: node.id,
+            text: textFromNode(node).toLowerCase(),
+            type: node.type
+        }
+    } 
+
     private makeIndex() {
+        const docDescriptor = {
+            id: "id",
+            field: [
+                "text",
+                "type"
+            ]
+        }
+
         return new FlexSearch({
             encode: false,
             split: /\s+/,
             tokenize: "forward",
-            doc: {
-                id: "id",
-                field: "text"
-            }
+            doc: docDescriptor
         })
     }
 
@@ -99,13 +107,15 @@ export class IndexValue {
     updateTime: number
 }
 
-export interface NodeDocument {
+export interface SearchDocument {
     id: string
     text: string
+    type: string
 }
 
+
 export interface SearchIndex {
-    search(text: string, selector: any): Array<NodeDocument>
+    search(text: string, selector: any): Array<SearchDocument>
     remove(id: any)
     updated: number
 }
@@ -119,7 +129,7 @@ export class SearchIndexImpl {
         this.updated = updated
     }
 
-    search(text: string, selector: any): Array<NodeDocument> {
+    search(text: string, selector: any): Array<SearchDocument> {
         return this.flexSearchIndex.search(text, selector)
     }
 

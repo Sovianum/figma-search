@@ -1,4 +1,5 @@
 import { UserSettings } from "../settings/settings"
+import {Tag} from '../domain/tags/tags'
 
 export enum MessageType {
     SearchRequest = "search_request",
@@ -12,7 +13,13 @@ export enum MessageType {
     NodeNotFound = "nodeNotFound",
     UserSettingsUpdateStart = "userSettingsUpdateStart",
     UserSettingsUpdateFinish = "userSettingsUpdateFinish",
-    UserSettingsLoadStart = "userSettingsLoadStart"
+    UserSettingsLoadStart = "userSettingsLoadStart",
+    SetNodesTagsStart = "setNodesTags",
+    SetNodesTagsFinish = "setNodesFinish"
+}
+
+export function newSetNodesTagsStartMessage(tags: Array<Tag>): PluginMessage {
+    return new PluginMessage(MessageType.SetNodesTagsStart, JSON.stringify(tags))
 }
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {

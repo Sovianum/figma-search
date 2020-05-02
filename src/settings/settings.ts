@@ -1,4 +1,4 @@
-import { IndexableTypes } from "../domain/search";
+import { IndexableTypes } from "../domain/search/storage";
 
 export function getDefaultUserSettings(): UserSettings {
     return {

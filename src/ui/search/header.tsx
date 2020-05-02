@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { getUniqueID } from '../util'
 import { Column, Row } from 'simple-flexbox';
-import { IndexableTypes } from '../../domain/search';
+import { IndexableTypes } from '../../domain/search/storage';
 import { UserSettings } from '../../settings/settings';
 
 interface SearchHeaderProps {

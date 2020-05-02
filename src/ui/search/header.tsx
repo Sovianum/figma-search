@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { getUniqueID } from './util'
+import { getUniqueID } from '../util'
 import { Column, Row } from 'simple-flexbox';
-import { IndexableTypes } from '../domain/search';
-import { UserSettings } from '../settings/settings';
+import { IndexableTypes } from '../../domain/search';
+import { UserSettings } from '../../settings/settings';
 
 interface SearchHeaderProps {
     reindexing: boolean

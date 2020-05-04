@@ -1,12 +1,12 @@
 import './static/ds.min.css'
 import './static/ds.min.js'
-import './static/tabs.css'
-import {MessageType, SearchResponse, PluginMessage} from './message/messages'
+import './styles/tabs.scss'
+import {MessageType, SearchResponse, PluginMessage} from './ts/message/messages'
 
 import * as ReactDOM from 'react-dom'
 import * as React from 'react'
-import { App } from './ui/app'
-import { UserSettings } from './settings/settings'
+import { App } from './ts/ui/app'
+import { UserSettings } from './ts/settings/settings'
 
 let app: App = null
 ReactDOM.render(<App ref={ref => {

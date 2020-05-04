@@ -1,8 +1,8 @@
-import {SearchModel} from './domain/search/model'
-import {TagsModel} from './domain/tags/model'
-import {MessageType} from './message/messages'
-import { UserSettings } from './settings/settings'
-import { Tag } from './domain/tags/tags'
+import {SearchModel} from './ts/domain/search/model'
+import {TagsModel} from './ts/domain/tags/model'
+import {MessageType} from './ts/message/messages'
+import { UserSettings } from './ts/settings/settings'
+import { Tag } from './ts/domain/tags/tags'
 
 figma.showUI(__html__)
 

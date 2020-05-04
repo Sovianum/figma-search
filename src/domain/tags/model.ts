@@ -16,18 +16,9 @@ function setNodesTags(nodes: ReadonlyArray<SceneNode>, tags: Array<Tag>) {
     const allNodes = getNodesWithChildren(nodes)
 
     for (let node of allNodes) {
-        console.log("get tags of nodes")
         const currTags = getNodeTags(node)
-        
-        try {
-            console.log("add tags", currTags, tags)
-            currTags.addTags(tags)
-            console.log("set tags")
-            setNodeTags(node, currTags)
-            console.log("tags set")
-        } catch (e) {
-            console.log(e)
-        }
+        currTags.addTags(tags)
+        setNodeTags(node, currTags)
     }
 }
 
@@ -71,6 +62,5 @@ function getNodeTags(node: SceneNode): Tags {
 
 function setNodeTags(node: SceneNode, tags: Tags) {
     const tagsStr = JSON.stringify(tags)
-    console.log("setting to", node)
     node.setPluginData(TAGS_KEY, tagsStr)
 }

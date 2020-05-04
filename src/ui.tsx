@@ -1,5 +1,6 @@
 import './static/ds.min.css'
 import './static/ds.min.js'
+import './static/tabs.css'
 import {MessageType, SearchResponse, PluginMessage} from './message/messages'
 
 import * as ReactDOM from 'react-dom'

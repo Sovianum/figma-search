@@ -5,10 +5,12 @@ import { UserSettings } from '../settings/settings'
 import { IndexableTypes } from '../domain/search/storage'
 import { SearchPanel } from './search/panel'
 import { TagsPanel } from './tags/panel'
-import { Column } from 'simple-flexbox'
+import { Column, Row } from 'simple-flexbox'
 import { Tag } from '../domain/tags/tags'
+import { TabBar } from './tab_bar'
 
 export interface AppState {
+    activeTab: string
     searchResults: SearchResultProps
     userSettings: UserSettings
     reindexOnSearch: boolean
@@ -20,6 +22,7 @@ export class App extends React.Component<{}, AppState> {
         super(props)
 
         this.state = {
+            activeTab: "search",
             searchResults: {
                 itemProps: [],
                 searchAlert: ""
@@ -39,12 +42,26 @@ export class App extends React.Component<{}, AppState> {
         this.navigateToNodeCallback = this.navigateToNodeCallback.bind(this)
         this.onNodeCheckboxClick = this.onNodeCheckboxClick.bind(this)
         this.onTagClick = this.onTagClick.bind(this)
+        this.onTabSelect = this.onTabSelect.bind(this)
     }
 
     render() {
+        const content = this.state.activeTab === "search" ? this.getSearchPanel() : this.getTagsPanel()
+
         return <Column>
-            {this.getSearchPanel()}
-            {this.getTagsPanel()}
+            <Row>
+                <TabBar 
+                    labels={["search", "tags"]} 
+                    activeTab={this.state.activeTab}
+                    onClick={this.onTabSelect}
+                />
+            </Row>
+            <Row>
+                <div className='divider' />
+            </Row>
+            <Row>
+                {content}
+            </Row>
         </Column>
     }
 
@@ -232,5 +249,11 @@ export class App extends React.Component<{}, AppState> {
                     tags: [tag]
                 } 
             }, '*')
+    }
+
+    onTabSelect(tabName: string) {
+        this.setState({
+            activeTab: tabName
+        })
     }
 }

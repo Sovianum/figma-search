@@ -8,19 +8,23 @@ export class Tags {
     }
 
     getTagMap(): Map<string, Tag> {
-        const result = new Map<string, Tag>()
-        for (let tag of this.tags) {
-            result[tag.name] = tag
-        }
-
-        return result
+        return Tags.getTagMap(this.tags)
     }
 
     addTags(newTags: Array<Tag>) {
+        this.tags = getSortedValues(Tags.getTagMap(this.tags.concat(newTags)), Tag.compare)
+    }
+
+    removeTags(tags: Array<Tag>) {
+        const tagMap = Tags.getTagMap(tags)
+        this.tags = this.tags.filter(tag => !tagMap.has(tag.name))
+    }
+
+    private static getTagMap(tags: Array<Tag>): Map<string, Tag> {
         const tagMap = new Map<string, Tag>()
-        this.tags.concat(newTags).forEach(tag => tagMap.set(tag.name, tag))
-        this.tags = getSortedValues(tagMap, Tag.compare)
-    } 
+        tags.forEach(tag => tagMap.set(tag.name, tag))
+        return tagMap
+    }
 }
 
 export class Tag {

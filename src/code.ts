@@ -9,6 +9,11 @@ figma.showUI(__html__)
 const searchModel = new SearchModel()
 const tagsModel = new TagsModel()
 
+// TODO send tagsModel.onSelectionChange() on init
+figma.on("selectionchange", () => {
+  tagsModel.updateTagsView()
+})
+
 figma.ui.onmessage = async function(msg) {
   console.log(msg)
 
@@ -38,8 +43,12 @@ figma.ui.onmessage = async function(msg) {
       await searchModel.onUserSettingsLoad()
       break
 
-    case MessageType.SetNodesTagsStart:
-      tagsModel.onSetNodeTags(msg.tags)
+    case MessageType.AddTagToSelection:
+      tagsModel.onSetNodeTags([msg.tag])
+      break
+
+    case MessageType.RemoveTagFromSelection:
+      tagsModel.onRemoveNodeTags([msg.tag])
       break
   }
 }

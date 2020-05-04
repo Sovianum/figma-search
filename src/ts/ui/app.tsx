@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {SearchResultProps} from './search/search_results'
-import { MessageType, SearchResponse} from '../message/messages'
+import { MessageType, SearchResponse, SelectionTagsState as TagsState} from '../message/messages'
 import { UserSettings } from '../settings/settings'
 import { IndexableTypes } from '../domain/search/storage'
 import { SearchPanel } from './search/panel'
@@ -11,6 +11,10 @@ import { TabBar } from './tab_bar'
 
 export interface AppState {
     activeTab: string
+
+    selectionTags: Array<Tag>
+    availableTags: Array<Tag>
+
     searchResults: SearchResultProps
     userSettings: UserSettings
     reindexOnSearch: boolean
@@ -23,6 +27,8 @@ export class App extends React.Component<{}, AppState> {
 
         this.state = {
             activeTab: "search",
+            selectionTags: [],
+            availableTags: [],
             searchResults: {
                 itemProps: [],
                 searchAlert: ""
@@ -41,8 +47,9 @@ export class App extends React.Component<{}, AppState> {
         this.onSearchSubmit = this.onSearchSubmit.bind(this)
         this.navigateToNodeCallback = this.navigateToNodeCallback.bind(this)
         this.onNodeCheckboxClick = this.onNodeCheckboxClick.bind(this)
-        this.onTagClick = this.onTagClick.bind(this)
         this.onTabSelect = this.onTabSelect.bind(this)
+        this.onExistingTagClick = this.onExistingTagClick.bind(this)
+        this.onAvailableTagClick = this.onAvailableTagClick.bind(this)
     }
 
     render() {
@@ -66,20 +73,17 @@ export class App extends React.Component<{}, AppState> {
     }
 
     getTagsPanel() {
-        const existingTags = Array.from([
-            Array.from([
-                {name: "tag1"}, {name: "tag2"}, {name: "tag3"} 
-            ]),
-            Array.from([
-                {name: "tag4"}, {name: "tag5"} 
-            ])
-        ])
+        const state = this.state
 
         return <TagsPanel 
-            existingTags={existingTags}
+            existingTags={state.selectionTags}
             onExistingTagClick={(tagName: string) => {
-                console.log(tagName)
-                this.onTagClick(tagName)
+                this.onExistingTagClick(tagName)
+            }}
+
+            availableTags={state.availableTags}
+            onAvailableTagClick={(tagName: string) => {
+                this.onAvailableTagClick(tagName)
             }}
         />
     }
@@ -242,13 +246,25 @@ export class App extends React.Component<{}, AppState> {
         })
     }
 
-    onTagClick(tagName: string) {
-        const tag = new Tag(tagName)
-        parent.postMessage({ pluginMessage: { 
-                    type: MessageType.SetNodesTagsStart, 
-                    tags: [tag]
-                } 
-            }, '*')
+    onTagsUpdated(tagsState: TagsState) {
+        this.setState({
+            selectionTags: tagsState.selectionTags,
+            availableTags: tagsState.availableTags
+        })
+    }
+
+    onExistingTagClick(tagName: string) {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.RemoveTagFromSelection,
+            tag: new Tag(tagName)
+        }}, "*")
+    }
+
+    onAvailableTagClick(tagName: string) {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.AddTagToSelection,
+            tag: new Tag(tagName)
+        }}, "*")
     }
 
     onTabSelect(tabName: string) {

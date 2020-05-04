@@ -9,7 +9,8 @@ export interface TagsStorage {
     removeTag(tag: Tag)
 
     setTags(nodes: ReadonlyArray<SceneNode>, tags: Tags)
-    getTags(nodes: ReadonlyArray<SceneNode>): Tags
+    removeTags(nodes: ReadonlyArray<SceneNode>, tags: Tags)
+    getTags(nodes: ReadonlyArray<SceneNode>|ReadonlyArray<BaseNodeMixin>): Tags
 }
 
 export function NewTagsStorage(root: BaseNodeMixin): TagsStorage {
@@ -36,6 +37,11 @@ class TagsStorageImpl {
         // todo add recursive remove
     }
 
+    removeTags(nodes: ReadonlyArray<SceneNode>, tags: Tags) {
+        nodes.forEach(node => TagsStorageImpl.removeNodeTags(node, tags.tags))
+        // todo add recursive remove
+    }
+
     setTags(nodes: ReadonlyArray<SceneNode>, tags: Tags) {
         TagsStorageImpl.setNodesTags(nodes, tags)
     }
@@ -45,14 +51,16 @@ class TagsStorageImpl {
     }
 
     private static getNodesTags(nodes: ReadonlyArray<SceneNode>): Tags {
-        let tagsByName: Map<string, Tag> = null
+        let tagsByName = new Map<string, Tag>()
+        let inited = false
         
         for (let node of nodes) {
             const nodeTags = TagsStorageImpl.getNodeTags(node)
             const nodeTagsByName = nodeTags.getTagMap()
     
-            if (tagsByName == null) {
+            if (!inited) {
                 tagsByName = nodeTagsByName
+                inited = true
                 continue
             }
     

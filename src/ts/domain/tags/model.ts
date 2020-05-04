@@ -1,5 +1,5 @@
 import {Tags, Tag} from './tags'
-import { newTypePluginMessage, MessageType } from '../../message/messages'
+import { newUpdateTagState } from '../../message/messages'
 import { TagsStorage, NewTagsStorage } from './storage'
 
 export class TagsModel {
@@ -11,7 +11,18 @@ export class TagsModel {
 
     onSetNodeTags(tags: Array<Tag>) {
         this.storage.setTags(figma.currentPage.selection, new Tags(tags))
+        this.updateTagsView()
+    }
 
-        figma.ui.postMessage(newTypePluginMessage(MessageType.SetNodesTagsFinish))
-    }    
+    onRemoveNodeTags(tags: Array<Tag>) {
+        this.storage.removeTags(figma.currentPage.selection, new Tags(tags))
+        this.updateTagsView()
+    }
+    
+    updateTagsView() {
+        const selectionTags = this.storage.getTags(figma.currentPage.selection)
+        const availableTags = this.storage.getTags([figma.root])
+
+        figma.ui.postMessage(newUpdateTagState(selectionTags.tags, availableTags.tags))
+    }
 }

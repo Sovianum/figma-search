@@ -1,40 +1,55 @@
 import * as React from 'react'
 import { Column, Row } from 'simple-flexbox';
+import { splitInChunks, getUniqueID } from '../util';
 
 interface TagsPanelProps {
-    existingTags: Array<Array<TagInfo>>
+    existingTags: Array<TagInfo>
     onExistingTagClick(tagName: string)
+
+    availableTags: Array<TagInfo>
+    onAvailableTagClick(tagName: string)
 }
 export class TagsPanel extends React.Component<TagsPanelProps> {
     render() {
         return <Column>
-            <TagsCloud 
-                tagLines={this.props.existingTags}
-                onTagClick={this.props.onExistingTagClick}
-            />
+            <p className="type type--pos-medium-normal">Current tags</p>
+            <Row>
+                <TagsCloud 
+                    tags={this.props.existingTags}
+                    onTagClick={this.props.onExistingTagClick}
+                />
+            </Row>
+            <p className="type type--pos-medium-normal">All tags</p>
+            <Row>
+                <TagsCloud 
+                    tags={this.props.availableTags}
+                    onTagClick={this.props.onAvailableTagClick}
+                />
+            </Row>
         </Column>
     }
 }
 
 interface TagsCloudProps {
-    tagLines: Array<Array<TagInfo>>
+    tags: Array<TagInfo>
 
     onTagClick(tagName: string)
 }
 class TagsCloud extends React.Component<TagsCloudProps> {
     render() {
-        const lines = this.props.tagLines.map(tagLine => <TagsLine 
+        const lines = splitInChunks(this.props.tags, 5).map(tagLine => <TagsLine 
             tags={tagLine}
-            // key={tagLine.reduce((curr, next) => curr + next.name, "")}
+            key={getUniqueID()}
             onTagClick={this.props.onTagClick}
         />)
+        
         return <Column>
             {lines}
         </Column>
     }
 }
 
-interface TagInfo {
+export interface TagInfo {
     name: string
 }
 interface TagsLineProps {
@@ -44,17 +59,25 @@ interface TagsLineProps {
 }
 class TagsLine extends React.Component<TagsLineProps> {
     render() {
-        const columns = this.props.tags.map(tag => {
-            return <Column>
+        const allTagClassNames = [
+            "tag-green",
+            "tag-blue",
+            "tag-purple",
+            "tag-red"
+        ]
+
+        const columns = this.props.tags.map((tag, i) => {
+            return <Column key={"column_" + tag.name}>
                 <Tag 
                     text={tag.name}
-                    // key={tag.name}
+                    tagClass={allTagClassNames[i % allTagClassNames.length]}
+                    key={tag.name}
                     onClick={() => this.props.onTagClick(tag.name)}
                 />
             </Column>
         })
 
-        return <Row>
+        return <Row horizontal="center">
             {columns}
         </Row>
     }
@@ -62,13 +85,14 @@ class TagsLine extends React.Component<TagsLineProps> {
 
 interface TagProps {
     text: string
+    tagClass: string
 
     onClick(): void
 }
 class Tag extends React.Component<TagProps> {
     render() {
         return React.createElement("button", { 
-            className: 'button button--secondary', 
+            className: this.props.tagClass, 
             onClick: this.props.onClick 
         }, this.props.text)
     }

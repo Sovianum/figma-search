@@ -8,18 +8,26 @@ export enum MessageType {
     ReindexFinish = "reindexFinish",
     IndexLoadStart = "indexLoadStart",
     IndexLoadFinish = "indexLoadFinish",
-    NavigateToNode = "navigate_to_node",
+    NavigateToNode = "navigateToNode",
     NoSearchIndex = "noSearchIndex",
     NodeNotFound = "nodeNotFound",
     UserSettingsUpdateStart = "userSettingsUpdateStart",
     UserSettingsUpdateFinish = "userSettingsUpdateFinish",
     UserSettingsLoadStart = "userSettingsLoadStart",
-    SetNodesTagsStart = "setNodesTags",
-    SetNodesTagsFinish = "setNodesFinish"
+    UpdateTags = "updateSelectionTags",
+    AddTagToSelection = "addTagToSelection",
+    RemoveTagFromSelection = "removeTagFromSelection",
 }
 
-export function newSetNodesTagsStartMessage(tags: Array<Tag>): PluginMessage {
-    return new PluginMessage(MessageType.SetNodesTagsStart, JSON.stringify(tags))
+export interface SelectionTagsState {
+    selectionTags: Array<Tag>
+    availableTags: Array<Tag>
+}
+export function newUpdateTagState(selectionTags: Array<Tag>, availableTags: Array<Tag>): PluginMessage {
+    return new PluginMessage(MessageType.UpdateTags, {
+        selectionTags,
+        availableTags
+    })
 }
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {

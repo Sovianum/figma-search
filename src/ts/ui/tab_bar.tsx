@@ -16,7 +16,8 @@ export class TabBar extends React.Component<TabBarProps> {
         const buttons = this.props.labels.map(label => {
             return React.createElement("button", {
                 className: label === this.props.activeTab? 'tab-button tab-button-active': 'tab-button',
-                onClick: this.getOnClickCallback(label)
+                onClick: this.getOnClickCallback(label),
+                key: label
             }, label)
         })
 

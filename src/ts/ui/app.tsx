@@ -4,7 +4,7 @@ import { MessageType, SearchResponse, SelectionTagsState as TagsState} from '../
 import { UserSettings } from '../settings/settings'
 import { IndexableTypes } from '../domain/search/storage'
 import { SearchPanel } from './search/panel'
-import { TagsPanel } from './tags/panel'
+import { TagsPanel, TagType, TagMenuAction } from './tags/panel'
 import { Column, Row } from 'simple-flexbox'
 import { Tag } from '../domain/tags/tags'
 import { TabBar } from './tab_bar'
@@ -48,9 +48,9 @@ export class App extends React.Component<{}, AppState> {
         this.navigateToNodeCallback = this.navigateToNodeCallback.bind(this)
         this.onNodeCheckboxClick = this.onNodeCheckboxClick.bind(this)
         this.onTabSelect = this.onTabSelect.bind(this)
-        this.onExistingTagClick = this.onExistingTagClick.bind(this)
-        this.onAvailableTagClick = this.onAvailableTagClick.bind(this)
-        this.onCreateTag = this.onCreateTag.bind(this)
+        this.removeTagFromSelection = this.removeTagFromSelection.bind(this)
+        this.addTagToSelection = this.addTagToSelection.bind(this)
+        this.createTag = this.createTag.bind(this)
     }
 
     render() {
@@ -78,15 +78,31 @@ export class App extends React.Component<{}, AppState> {
 
         return <TagsPanel 
             existingTags={state.selectionTags}
-            onExistingTagClick={(tagName: string) => {
-                this.onExistingTagClick(tagName)
+            availableTags={state.availableTags}
+
+            onTagClick={(tagName, tagType) => {
+                switch (tagType) {
+                    case TagType.Existing:
+                        return this.removeTagFromSelection(tagName)
+                    case TagType.Available:
+                        return this.addTagToSelection(tagName)
+                }
             }}
 
-            availableTags={state.availableTags}
-            onAvailableTagClick={(tagName: string) => {
-                this.onAvailableTagClick(tagName)
+            onTagMenyItemClick={(tagName, action, tagType) => {
+                switch (action) {
+                    case TagMenuAction.Remove:
+                        switch (tagType) {
+                            case TagType.Existing:
+                                return this.removeTagFromSelection(tagName)
+                            case TagType.Available:
+                                return this.removeTag(tagName)
+                        }
+                    
+                }
             }}
-            onAddTagSubmit={this.onCreateTag}
+
+            onAddTagSubmit={this.createTag}
         />
     }
 
@@ -255,23 +271,30 @@ export class App extends React.Component<{}, AppState> {
         })
     }
 
-    onExistingTagClick(tagName: string) {
+    removeTagFromSelection(tagName: string) {
         parent.postMessage({pluginMessage: {
             type: MessageType.RemoveTagFromSelection,
             tag: new Tag(tagName)
         }}, "*")
     }
 
-    onAvailableTagClick(tagName: string) {
+    addTagToSelection(tagName: string) {
         parent.postMessage({pluginMessage: {
             type: MessageType.AddTagToSelection,
             tag: new Tag(tagName)
         }}, "*")
     }
 
-    onCreateTag(tagName: string) {
+    createTag(tagName: string) {
         parent.postMessage({pluginMessage: {
             type: MessageType.CreateTag,
+            tag: new Tag(tagName)
+        }}, "*")
+    }
+
+    removeTag(tagName: string) {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.RemoveTag,
             tag: new Tag(tagName)
         }}, "*")
     }

@@ -55,6 +55,10 @@ figma.ui.onmessage = async function(msg) {
       case MessageType.CreateTag:
         tagsModel.onCreateTag(msg.tag)
         break
+
+      case MessageType.RemoveTag:
+        tagsModel.onRemoveTag(msg.tag)
+        break
     }
   } catch (e) {
     console.log(e)

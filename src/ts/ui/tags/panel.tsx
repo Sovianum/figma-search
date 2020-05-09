@@ -3,12 +3,22 @@ import { Column, Row } from 'simple-flexbox';
 import { splitInChunks, getUniqueID, hashFnv32a } from '../util';
 import { Input } from '../common/input';
 
+export enum TagType {
+    Existing = "existing",
+    Available = "available"
+}
+
+export enum TagMenuAction {
+    Remove = "remove"
+}
+
 interface TagsPanelProps {
     existingTags: Array<TagInfo>
-    onExistingTagClick(tagName: string)
-
     availableTags: Array<TagInfo>
-    onAvailableTagClick(tagName: string)
+
+    onTagClick(tagName: string, tagType: TagType)
+    onTagMenyItemClick(tagName: string, action: TagMenuAction, tagType: TagType)
+
     onAddTagSubmit(input: string)
 }
 export class TagsPanel extends React.Component<TagsPanelProps> {
@@ -18,8 +28,8 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
             <Row>
                 <TagsCloud 
                     tags={this.props.existingTags}
-                    onTagClick={this.props.onExistingTagClick}
-                    onTagMenuItemClick={(tagName, action) => console.log(tagName, action)}
+                    onTagClick={tagName => this.props.onTagClick(tagName, TagType.Existing)}
+                    onTagMenuItemClick={(tagName, action) => this.props.onTagMenyItemClick(tagName, action, TagType.Existing)}
                 />
             </Row>
             <p className="type type--pos-medium-normal">All tags</p>
@@ -31,8 +41,8 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
             <Row>
                 <TagsCloud 
                     tags={this.props.availableTags}
-                    onTagClick={this.props.onAvailableTagClick}
-                    onTagMenuItemClick={(tagName, action) => console.log(tagName, action)}
+                    onTagClick={tagName => this.props.onTagClick(tagName, TagType.Available)}
+                    onTagMenuItemClick={(tagName, action) => this.props.onTagMenyItemClick(tagName, action, TagType.Available)}
                 />
             </Row>
         </Column>
@@ -43,7 +53,7 @@ interface TagsCloudProps {
     tags: Array<TagInfo>
 
     onTagClick(tagName: string)
-    onTagMenuItemClick(tagName: string, action: TagMenuOptionAction)
+    onTagMenuItemClick(tagName: string, action: TagMenuAction)
 }
 class TagsCloud extends React.Component<TagsCloudProps> {
     render() {
@@ -74,7 +84,7 @@ interface TagsLineProps {
     tags: Array<TagInfo>
 
     onTagClick(tagName: string)
-    onTagMenuItemClick(tagName: string, action: TagMenuOptionAction)
+    onTagMenuItemClick(tagName: string, action: TagMenuAction)
 }
 class TagsLine extends React.Component<TagsLineProps> {
     render() {
@@ -92,7 +102,7 @@ class TagsLine extends React.Component<TagsLineProps> {
                     tagClass={allTagClassNames[hashFnv32a(tag.name) % allTagClassNames.length]}
                     menuOptions={[{
                         name: "Remove",
-                        action: TagMenuOptionAction.Remove
+                        action: TagMenuAction.Remove
                     }]}
 
                     onTagClick={() => this.props.onTagClick(tag.name)}
@@ -111,11 +121,7 @@ class TagsLine extends React.Component<TagsLineProps> {
 
 interface TagMenuOption {
     name: string
-    action: TagMenuOptionAction
-}
-
-export enum TagMenuOptionAction {
-    Remove = "remove"
+    action: TagMenuAction
 }
 
 interface TagProps {
@@ -124,7 +130,7 @@ interface TagProps {
     menuOptions: Array<TagMenuOption>
 
     onTagClick(): void
-    onMenuItemClick(action: TagMenuOptionAction): void
+    onMenuItemClick(action: TagMenuAction): void
 }
 class Tag extends React.Component<TagProps> {
     render() {

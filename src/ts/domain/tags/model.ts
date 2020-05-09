@@ -23,6 +23,13 @@ export class TagsModel {
         this.storage.addTag(tag)
         this.updateTagsView()
     }
+
+    onRemoveTag(tag: Tag) {
+        console.log(tag)
+        this.storage.removeTag(tag)
+        // todo: add recursive remove
+        this.updateTagsView()
+    }
     
     updateTagsView() {
         const selectionTags = this.storage.getTags(figma.currentPage.selection)

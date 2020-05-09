@@ -57,16 +57,14 @@ interface TagsCloudProps {
 }
 class TagsCloud extends React.Component<TagsCloudProps> {
     render() {
-        const lines = splitInChunks(this.props.tags, 5).map(tagLine => <TagsLine 
-            tags={tagLine}
-            onTagClick={this.props.onTagClick}
-            onTagMenuItemClick={this.props.onTagMenuItemClick}
-            
-            key={getUniqueID()}
-        />)
-        
         return <Column>
-            {lines}
+            <TagsLine 
+                tags={this.props.tags}
+                onTagClick={this.props.onTagClick}
+                onTagMenuItemClick={this.props.onTagMenuItemClick}
+                
+                key={getUniqueID()}
+            />
         </Column>
     }
 }
@@ -146,7 +144,7 @@ class Tag extends React.Component<TagProps> {
                 <div className="dropdown-content">
                     {
                         this.props.menuOptions.map(option => React.createElement("a", { 
-                            className: "item", 
+                            className: "item type type--pos-medium-normal", 
                             onClick: () => this.props.onMenuItemClick(option.action),
                             key: option.name 
                         }, option.name))

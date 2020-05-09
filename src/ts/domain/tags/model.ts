@@ -18,6 +18,11 @@ export class TagsModel {
         this.storage.removeTags(figma.currentPage.selection, new Tags(tags))
         this.updateTagsView()
     }
+
+    onCreateTag(tag: Tag) {
+        this.storage.addTag(tag)
+        this.updateTagsView()
+    }
     
     updateTagsView() {
         const selectionTags = this.storage.getTags(figma.currentPage.selection)

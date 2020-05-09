@@ -17,6 +17,7 @@ export enum MessageType {
     UpdateTags = "updateSelectionTags",
     AddTagToSelection = "addTagToSelection",
     RemoveTagFromSelection = "removeTagFromSelection",
+    CreateTag = "createTag"
 }
 
 export interface SelectionTagsState {

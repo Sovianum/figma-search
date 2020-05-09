@@ -50,6 +50,7 @@ export class App extends React.Component<{}, AppState> {
         this.onTabSelect = this.onTabSelect.bind(this)
         this.onExistingTagClick = this.onExistingTagClick.bind(this)
         this.onAvailableTagClick = this.onAvailableTagClick.bind(this)
+        this.onCreateTag = this.onCreateTag.bind(this)
     }
 
     render() {
@@ -85,6 +86,7 @@ export class App extends React.Component<{}, AppState> {
             onAvailableTagClick={(tagName: string) => {
                 this.onAvailableTagClick(tagName)
             }}
+            onAddTagSubmit={this.onCreateTag}
         />
     }
 
@@ -263,6 +265,13 @@ export class App extends React.Component<{}, AppState> {
     onAvailableTagClick(tagName: string) {
         parent.postMessage({pluginMessage: {
             type: MessageType.AddTagToSelection,
+            tag: new Tag(tagName)
+        }}, "*")
+    }
+
+    onCreateTag(tagName: string) {
+        parent.postMessage({pluginMessage: {
+            type: MessageType.CreateTag,
             tag: new Tag(tagName)
         }}, "*")
     }

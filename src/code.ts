@@ -17,38 +17,47 @@ figma.on("selectionchange", () => {
 figma.ui.onmessage = async function(msg) {
   console.log(msg)
 
-  switch (msg.type) {
-    case MessageType.SearchRequest:
-      await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
-      break
+  try {
+    switch (msg.type) {
+      case MessageType.SearchRequest:
+        await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
+        break
+  
+      case MessageType.NavigateToNode:
+        await searchModel.onNavToNodeRequest(msg.id)
+        break
+  
+      case MessageType.ReindexStart:
+        await searchModel.onReindex()
+        break
+  
+      case MessageType.IndexLoadStart:
+        await searchModel.onIndexLoad()
+        break
+  
+      case MessageType.UserSettingsUpdateStart:
+        const userSettings = JSON.parse(msg.userSettingsStr) as UserSettings
+        await searchModel.onUserSettingsUpdate(userSettings)
+        break
+  
+      case MessageType.UserSettingsLoadStart:
+        await searchModel.onUserSettingsLoad()
+        break
+  
+      case MessageType.AddTagToSelection:
+        tagsModel.onSetNodeTags([msg.tag])
+        break
+  
+      case MessageType.RemoveTagFromSelection:
+        tagsModel.onRemoveNodeTags([msg.tag])
+        break
 
-    case MessageType.NavigateToNode:
-      await searchModel.onNavToNodeRequest(msg.id)
-      break
-
-    case MessageType.ReindexStart:
-      await searchModel.onReindex()
-      break
-
-    case MessageType.IndexLoadStart:
-      await searchModel.onIndexLoad()
-      break
-
-    case MessageType.UserSettingsUpdateStart:
-      const userSettings = JSON.parse(msg.userSettingsStr) as UserSettings
-      await searchModel.onUserSettingsUpdate(userSettings)
-      break
-
-    case MessageType.UserSettingsLoadStart:
-      await searchModel.onUserSettingsLoad()
-      break
-
-    case MessageType.AddTagToSelection:
-      tagsModel.onSetNodeTags([msg.tag])
-      break
-
-    case MessageType.RemoveTagFromSelection:
-      tagsModel.onRemoveNodeTags([msg.tag])
-      break
+      case MessageType.CreateTag:
+        tagsModel.onCreateTag(msg.tag)
+        break
+    }
+  } catch (e) {
+    console.log(e)
+    throw e
   }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Column, Row } from 'simple-flexbox';
-import { splitInChunks, getUniqueID, hashFnv32a } from '../util';
+import { getUniqueID, hashFnv32a } from '../util';
 import { Input } from '../common/input';
 
 export enum TagType {
@@ -69,7 +69,7 @@ class TagsCloud extends React.Component<TagsCloudProps> {
     }
 }
 
-class AddTagInput extends Input {
+class AddTagInput extends Input {   // todo clear input on submit
     getPlaceholder(): string {
         return "Add tag"
     }

@@ -20,14 +20,12 @@ export class TagsModel {
     }
 
     onCreateTag(tag: Tag) {
-        this.storage.addTag(tag)
+        this.storage.addTag(tag, false)
         this.updateTagsView()
     }
 
     onRemoveTag(tag: Tag) {
-        console.log(tag)
-        this.storage.removeTag(tag)
-        // todo: add recursive remove
+        this.storage.removeTag(tag, true)
         this.updateTagsView()
     }
     

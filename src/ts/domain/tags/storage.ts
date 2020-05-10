@@ -1,26 +1,26 @@
 import { Tag, Tags } from "./tags";
-import { intersection, getSortedValues, getNodesWithChildren } from "../util";
+import { intersection, getSortedValues, getNodesWithChildren, TypedBaseNode } from "../util";
 
 const TAGS_KEY = "tags" 
 
 export interface TagsStorage {
     getAllTags(): Tags
-    addTag(tag: Tag)
-    removeTag(tag: Tag)
+    addTag(tag: Tag, withRecursive: boolean)
+    removeTag(tag: Tag, withRecursive: boolean)
 
-    setTags(nodes: ReadonlyArray<SceneNode>, tags: Tags)
-    removeTags(nodes: ReadonlyArray<SceneNode>, tags: Tags)
+    setTags(nodes: ReadonlyArray<TypedBaseNode>, tags: Tags)
+    removeTags(nodes: ReadonlyArray<TypedBaseNode>, tags: Tags)
     getTags(nodes: ReadonlyArray<SceneNode>|ReadonlyArray<BaseNodeMixin>): Tags
 }
 
-export function NewTagsStorage(root: BaseNodeMixin): TagsStorage {
+export function NewTagsStorage(root: TypedBaseNode): TagsStorage {
     return new TagsStorageImpl(root)
 }
 
 class TagsStorageImpl {
-    root: BaseNodeMixin
+    root: TypedBaseNode
 
-    constructor(root: BaseNodeMixin) {
+    constructor(root: TypedBaseNode) {
         this.root = root
     }
 
@@ -28,18 +28,18 @@ class TagsStorageImpl {
         return TagsStorageImpl.getNodeTags(this.root)
     }
 
-    addTag(tag: Tag) {
-        TagsStorageImpl.addNodeTags(this.root, [tag])
+    addTag(tag: Tag, withRecursive: boolean) {
+        TagsStorageImpl.addNodeTags(this.root, [tag], withRecursive)
     }
 
-    removeTag(tag: Tag) {
-        TagsStorageImpl.removeNodeTags(this.root, [tag])
-        // todo add recursive remove
+    removeTag(tag: Tag, withRecursive: boolean) {
+        TagsStorageImpl.removeNodeTags(this.root, [tag], withRecursive)
     }
 
-    removeTags(nodes: ReadonlyArray<SceneNode>, tags: Tags) {
-        nodes.forEach(node => TagsStorageImpl.removeNodeTags(node, tags.tags))
-        // todo add recursive remove
+    removeTags(nodes: ReadonlyArray<TypedBaseNode>, tags: Tags) {
+        for (let node of nodes) {
+            TagsStorageImpl.removeNodeTags(node, tags.tags, false)
+        }
     }
 
     setTags(nodes: ReadonlyArray<SceneNode>, tags: Tags) {
@@ -51,33 +51,19 @@ class TagsStorageImpl {
     }
 
     private static getNodesTags(nodes: ReadonlyArray<SceneNode>): Tags {
-        let tagsByName = new Map<string, Tag>()
-        let inited = false
-        
-        for (let node of nodes) {
-            const nodeTags = TagsStorageImpl.getNodeTags(node)
-            const nodeTagsByName = nodeTags.getTagMap()
+        const commonTags = nodes
+            .map(node => TagsStorageImpl.getNodeTags(node).getTagMap())
+            .reduce((curr: Map<string, Tag>, next: Map<string, Tag>): Map<string, Tag> => {
+                if (curr == null) {
+                    return next
+                }
+
+                return intersection(curr, next)
+            }, null)
+
+            const tags = getSortedValues(commonTags, Tag.compare)
     
-            if (!inited) {
-                tagsByName = nodeTagsByName
-                inited = true
-                continue
-            }
-    
-            nodeTagsByName.forEach((val: Tag, key: string) => {
-                tagsByName.set(key, val)
-            })
-    
-            tagsByName = intersection(tagsByName, nodeTagsByName)
-    
-            if (tagsByName.size === 0) {
-                break
-            }
-        }
-    
-        const tags = getSortedValues(tagsByName, Tag.compare)
-    
-        return new Tags(tags)
+            return new Tags(tags)
     }
 
     private static getNodeTags(node: BaseNodeMixin): Tags {
@@ -90,28 +76,40 @@ class TagsStorageImpl {
         return new Tags(repr.tags)
     }
 
-    private static setNodesTags(nodes: ReadonlyArray<SceneNode>, tags: Tags) {
+    private static setNodesTags(nodes: ReadonlyArray<TypedBaseNode>, tags: Tags) {
         const allNodes = getNodesWithChildren(nodes)
     
         for (let node of allNodes) {
-            TagsStorageImpl.addNodeTags(node, tags.tags)
+            TagsStorageImpl.addNodeTags(node, tags.tags, false)
         }
     }
 
-    private static removeNodeTags(node: BaseNodeMixin, tags: Array<Tag>) {
+    private static removeNodeTags(node: TypedBaseNode, tags: Array<Tag>, withRecursive: boolean) {
         const currTags = TagsStorageImpl.getNodeTags(node)
         currTags.removeTags(tags)
-        TagsStorageImpl.setNodeTags(node, currTags)
+        TagsStorageImpl.setNodeTags(node, currTags, withRecursive)
     }
 
-    private static addNodeTags(node: BaseNodeMixin, tags: Array<Tag>) {
+    private static addNodeTags(node: TypedBaseNode, tags: Array<Tag>, withRecursive: boolean) {
         const currTags = TagsStorageImpl.getNodeTags(node)
         currTags.addTags(tags)
-        TagsStorageImpl.setNodeTags(node, currTags)
+        TagsStorageImpl.setNodeTags(node, currTags, withRecursive)
     }
 
-    private static setNodeTags(node: BaseNodeMixin, tags: Tags) {
+    private static setNodeTags(node: TypedBaseNode, tags: Tags, withRecursive: boolean) {
         const tagsStr = JSON.stringify(tags)
-        node.setPluginData(TAGS_KEY, tagsStr)
+        
+        const doSet = (node: TypedBaseNode) => {
+            node.setPluginData(TAGS_KEY, tagsStr)
+        }
+        
+        if (!withRecursive) {
+            doSet(node)
+        } else {
+            for (let iterNode of getNodesWithChildren([node])) {
+                doSet(iterNode)
+            }
+        }
+
     }
 }

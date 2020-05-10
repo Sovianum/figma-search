@@ -11,8 +11,32 @@
 @mixin left-delimiter($color) {
     border-left: 1px solid $color;
 }
-  
+
 @mixin tag($contentBgColor) {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    marging-bottom: 5px;
+    
+
+    .tag-content {
+        background-color: $contentBgColor;
+        color: white;
+        padding: 6px;
+        font-size: 12px;
+        border: none;
+        outline: none;
+        height: 25px;
+    }
+
+    .tag-content-left-right {
+        @extend .tag-content;
+        @include round-right;
+        @include round-left;
+    }
+}
+  
+@mixin tagWithMenu($contentBgColor) {
     margin-left: 5px;
     margin-right: 25px;
     margin-top: 5px;
@@ -37,6 +61,15 @@
         @extend .tag-content;
         @include round-right;
         @include left-delimiter(darken($contentBgColor, 20%));
+    }
+
+    .tag-content-left-right {
+        @extend .tag-content;
+        @include round-right;
+        @include round-left;
+
+        margin-left: -5px;
+        margin-right: -5px;
     }
 
     .dropdown {
@@ -70,19 +103,15 @@
         background-color: darken($contentBgColor, 10%);
     }
 }
-  
-.tag-orange {
-    @include tag(#EA5455);
-}
 
-.tag-green {
-    @include tag(#28C76F);
-}
+$colors: ("orange": #EA5455, "green": #28C76F, "blue": #0396FF, "purple": #9F44D3);
 
-.tag-blue {
-    @include tag(#0396FF);
-}
+@each $colorName, $color in $colors {
+    .tag-#{$colorName} {
+        @include tag($color);
+    }
 
-.tag-purple {
-    @include tag(#9F44D3);
+    .tag-#{$colorName}-with-menu {
+        @include tagWithMenu($color);
+    }
 }

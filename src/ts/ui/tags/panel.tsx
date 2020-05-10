@@ -28,6 +28,7 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
             <Row>
                 <TagsCloud 
                     tags={this.props.existingTags}
+                    withMenu={false}
                     onTagClick={tagName => this.props.onTagClick(tagName, TagType.Existing)}
                     onTagMenuItemClick={(tagName, action) => this.props.onTagMenyItemClick(tagName, action, TagType.Existing)}
                 />
@@ -41,6 +42,7 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
             <Row>
                 <TagsCloud 
                     tags={this.props.availableTags}
+                    withMenu={true}
                     onTagClick={tagName => this.props.onTagClick(tagName, TagType.Available)}
                     onTagMenuItemClick={(tagName, action) => this.props.onTagMenyItemClick(tagName, action, TagType.Available)}
                 />
@@ -51,6 +53,7 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
 
 interface TagsCloudProps {
     tags: Array<TagInfo>
+    withMenu: boolean
 
     onTagClick(tagName: string)
     onTagMenuItemClick(tagName: string, action: TagMenuAction)
@@ -60,6 +63,7 @@ class TagsCloud extends React.Component<TagsCloudProps> {
         return <Column>
             <TagsLine 
                 tags={this.props.tags}
+                withMenu={this.props.withMenu}
                 onTagClick={this.props.onTagClick}
                 onTagMenuItemClick={this.props.onTagMenuItemClick}
                 
@@ -80,10 +84,12 @@ export interface TagInfo {
 }
 interface TagsLineProps {
     tags: Array<TagInfo>
+    withMenu: boolean
 
     onTagClick(tagName: string)
-    onTagMenuItemClick(tagName: string, action: TagMenuAction)
+    onTagMenuItemClick?(tagName: string, action: TagMenuAction)
 }
+
 class TagsLine extends React.Component<TagsLineProps> {
     render() {
         const allTagClassNames = [
@@ -93,21 +99,44 @@ class TagsLine extends React.Component<TagsLineProps> {
             "tag-orange"
         ]
 
-        const columns = this.props.tags.map(tag => {
-            return <Column key={"column_" + tag.name}>
-                <Tag 
-                    text={tag.name}
-                    tagClass={allTagClassNames[hashFnv32a(tag.name) % allTagClassNames.length]}
-                    menuOptions={[{
-                        name: "Remove",
-                        action: TagMenuAction.Remove
-                    }]}
+        const withMenuSuffix = "-with-menu"
 
-                    onTagClick={() => this.props.onTagClick(tag.name)}
-                    onMenuItemClick={action => this.props.onTagMenuItemClick(tag.name, action)}
+        const getTag = (tagInfo: TagInfo) => {
+            let tagClass = allTagClassNames[hashFnv32a(tagInfo.name) % allTagClassNames.length]
+            if (this.props.withMenu) {
+                tagClass += withMenuSuffix
+            }
 
-                    key={tag.name}
+            if (!this.props.withMenu) {
+                return <Tag 
+                    text={tagInfo.name}
+                    tagClass={tagClass}
+
+                    onTagClick={() => this.props.onTagClick(tagInfo.name)}
+
+                    key={tagInfo.name}
                 />
+            }
+            
+            return <TagWithMenu 
+                text={tagInfo.name}
+                tagClass={tagClass}
+                menuOptions={[{
+                    name: "Remove",
+                    action: TagMenuAction.Remove
+                }]}
+
+                onTagClick={() => this.props.onTagClick(tagInfo.name)}
+                onMenuItemClick={action => this.props.onTagMenuItemClick(tagInfo.name, action)}
+
+                key={tagInfo.name}
+            />
+        } 
+        
+
+        const columns = this.props.tags.map(tagInfo => {
+            return <Column key={"column_" + tagInfo.name}>
+                {getTag(tagInfo)}
             </Column>
         })
 
@@ -122,7 +151,7 @@ interface TagMenuOption {
     action: TagMenuAction
 }
 
-interface TagProps {
+interface TagWithMenuProps {
     text: string
     tagClass: string
     menuOptions: Array<TagMenuOption>
@@ -130,7 +159,7 @@ interface TagProps {
     onTagClick(): void
     onMenuItemClick(action: TagMenuAction): void
 }
-class Tag extends React.Component<TagProps> {
+class TagWithMenu extends React.Component<TagWithMenuProps> {
     render() {
         const tagLHS = React.createElement("button", { 
             className: "tag-content-left", 
@@ -151,6 +180,25 @@ class Tag extends React.Component<TagProps> {
                     }
                 </div>
             </div>
+        </div>
+    }
+}
+
+interface TagProps {
+    text: string
+    tagClass: string
+
+    onTagClick(): void
+}
+class Tag extends React.Component<TagProps> {
+    render() {
+        const tag = React.createElement("button", { 
+            className: "tag-content-left-right", 
+            onClick: this.props.onTagClick 
+        }, this.props.text)
+
+        return <div className={this.props.tagClass}>
+            {tag}
         </div>
     }
 }

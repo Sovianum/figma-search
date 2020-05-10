@@ -3,6 +3,7 @@ import {SearchHeader} from './header'
 import {SearchResultProps, SearchResult} from './search_results'
 import { UserSettings } from '../../settings/settings'
 import { IndexableTypes } from '../../domain/search/storage'
+import { TagInfo } from '../tags/panel'
 
 export interface PanelProps {
     searchResults: SearchResultProps
@@ -13,6 +14,9 @@ export interface PanelProps {
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
+
+    availableTags: Array<TagInfo>
+    onTagClick(tagName: string)
 }
 
 export class SearchPanel extends React.Component<PanelProps> {
@@ -25,6 +29,9 @@ export class SearchPanel extends React.Component<PanelProps> {
                 onToggleSwitch={this.props.onToggleSwitch} 
                 onSearchSubmit={this.props.onSearchSubmit}
                 onNodeCheckboxClick={this.props.onNodeCheckboxClick}
+
+                availableTags={this.props.availableTags}
+                onTagClick={this.props.onTagClick}
             />
             <div className='divider' />
         </div>

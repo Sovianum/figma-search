@@ -4,6 +4,7 @@ import { Column, Row } from 'simple-flexbox';
 import { IndexableTypes } from '../../domain/search/storage';
 import { UserSettings } from '../../settings/settings';
 import { Input } from '../common/input';
+import { TagsCloud, TagInfo } from '../tags/panel'
 
 interface SearchHeaderProps {
     reindexing: boolean
@@ -12,6 +13,9 @@ interface SearchHeaderProps {
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
+
+    availableTags: Array<TagInfo>
+    onTagClick(tagName: string)
 }
 export class SearchHeader extends React.Component<SearchHeaderProps> {
     render() {
@@ -21,6 +25,12 @@ export class SearchHeader extends React.Component<SearchHeaderProps> {
             <NodeTypesCheckboxes
                 currFlags={this.props.userSettings.searchSettings.searchableNodes}
                 onCheckboxUpdate={this.props.onNodeCheckboxClick}
+            />
+            <TagsCloud 
+                tags={this.props.availableTags}
+                withMenu={false}
+
+                onTagClick={this.props.onTagClick}
             />
         </div>
 

@@ -8,12 +8,15 @@ import { TagsPanel, TagType, TagMenuAction } from './tags/panel'
 import { Column, Row } from 'simple-flexbox'
 import { Tag } from '../domain/tags/tags'
 import { TabBar } from './tab_bar'
+import { TagInfo } from './tags/panel'
 
 export interface AppState {
     activeTab: string
 
     selectionTags: Array<Tag>
     availableTags: Array<Tag>
+
+    searchTags: Map<string, boolean>
 
     searchResults: SearchResultProps
     userSettings: UserSettings
@@ -29,6 +32,9 @@ export class App extends React.Component<{}, AppState> {
             activeTab: "search",
             selectionTags: [],
             availableTags: [],
+
+            searchTags: new Map<string, boolean>(),
+
             searchResults: {
                 itemProps: [],
                 searchAlert: ""
@@ -51,6 +57,7 @@ export class App extends React.Component<{}, AppState> {
         this.removeTagFromSelection = this.removeTagFromSelection.bind(this)
         this.addTagToSelection = this.addTagToSelection.bind(this)
         this.createTag = this.createTag.bind(this)
+        this.onSearchTagClick = this.onSearchTagClick.bind(this)
     }
 
     render() {
@@ -108,6 +115,7 @@ export class App extends React.Component<{}, AppState> {
 
     getSearchPanel() {
         const state = this.state
+
         return <SearchPanel 
             searchResults={state.searchResults}
             userSettings={state.userSettings}
@@ -117,7 +125,21 @@ export class App extends React.Component<{}, AppState> {
             onToggleSwitch={this.switchReindexOnSearch}
             onSearchSubmit={this.onSearchSubmit}
             onNodeCheckboxClick={this.onNodeCheckboxClick}
+
+            availableTags={this.getSearchTags()}
+            onTagClick={this.onSearchTagClick}
         />
+    }
+
+    getSearchTags(): Array<TagInfo> {
+        const state = this.state
+
+        return this.state.availableTags.map(tag => {
+            return {
+                name: tag.name,
+                withShadow: !state.searchTags.get(tag.name)
+            }
+        })
     }
 
     onSearchSubmit(text: string) {
@@ -297,6 +319,19 @@ export class App extends React.Component<{}, AppState> {
             type: MessageType.RemoveTag,
             tag: new Tag(tagName)
         }}, "*")
+    }
+
+    onSearchTagClick(tagName: string) {
+        const searchTags = this.state.searchTags
+        if (!searchTags.has(tagName)) {
+            searchTags.set(tagName, true)
+        } else {
+            searchTags.set(tagName, !searchTags.get(tagName))
+        }
+
+        this.setState({
+            searchTags
+        })
     }
 
     onTabSelect(tabName: string) {

@@ -34,6 +34,10 @@
         @include round-right;
         @include round-left;
     }
+
+    .with-shadow {
+        box-shadow: 0 0 10px $contentBgColor;
+    }
 }
   
 @mixin tagWithMenu($contentBgColor) {

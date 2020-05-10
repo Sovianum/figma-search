@@ -56,9 +56,9 @@ interface TagsCloudProps {
     withMenu: boolean
 
     onTagClick(tagName: string)
-    onTagMenuItemClick(tagName: string, action: TagMenuAction)
+    onTagMenuItemClick?(tagName: string, action: TagMenuAction)
 }
-class TagsCloud extends React.Component<TagsCloudProps> {
+export class TagsCloud extends React.Component<TagsCloudProps> {
     render() {
         return <Column>
             <TagsLine 
@@ -81,6 +81,7 @@ class AddTagInput extends Input {   // todo clear input on submit
 
 export interface TagInfo {
     name: string
+    withShadow?: boolean
 }
 interface TagsLineProps {
     tags: Array<TagInfo>
@@ -111,6 +112,7 @@ class TagsLine extends React.Component<TagsLineProps> {
                 return <Tag 
                     text={tagInfo.name}
                     tagClass={tagClass}
+                    withShadow={tagInfo.withShadow}
 
                     onTagClick={() => this.props.onTagClick(tagInfo.name)}
 
@@ -188,13 +190,20 @@ interface TagProps {
     text: string
     tagClass: string
 
+    withShadow: boolean
+
     onTagClick(): void
 }
 class Tag extends React.Component<TagProps> {
     render() {
+        let buttonClassName = "tag-content-left-right"
+        if (this.props.withShadow) {
+            buttonClassName += " with-shadow"
+        }
+
         const tag = React.createElement("button", { 
-            className: "tag-content-left-right", 
-            onClick: this.props.onTagClick 
+            className: buttonClassName, 
+            onClick: this.props.onTagClick,
         }, this.props.text)
 
         return <div className={this.props.tagClass}>

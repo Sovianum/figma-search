@@ -8,11 +8,15 @@ import * as ReactDOM from 'react-dom'
 import * as React from 'react'
 import { App } from './ts/ui/app'
 import { UserSettings } from './ts/settings/settings'
-import { Tag } from './ts/domain/tags/tags'
 
 let app: App = null
 ReactDOM.render(<App ref={ref => {
   app = ref
+
+  parent.postMessage({pluginMessage: {
+    type: MessageType.UIInited
+  }}, "*")
+
   app.loadSettings()
   app.loadIndex()
 }}/>, document.getElementById('react-page'))

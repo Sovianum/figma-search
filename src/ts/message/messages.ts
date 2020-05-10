@@ -2,6 +2,7 @@ import { UserSettings } from "../settings/settings"
 import {Tag} from '../domain/tags/tags'
 
 export enum MessageType {
+    UIInited = "uiInited",
     SearchRequest = "search_request",
     SearchResponse = "search_response",
     ReindexStart = "reindexStart",

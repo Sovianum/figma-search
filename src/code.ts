@@ -9,7 +9,6 @@ figma.showUI(__html__)
 const searchModel = new SearchModel()
 const tagsModel = new TagsModel()
 
-// TODO send tagsModel.onSelectionChange() on init
 figma.on("selectionchange", () => {
   tagsModel.updateTagsView()
 })
@@ -19,6 +18,9 @@ figma.ui.onmessage = async function(msg) {
 
   try {
     switch (msg.type) {
+      case MessageType.UIInited:
+        tagsModel.updateTagsView()
+
       case MessageType.SearchRequest:
         await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
         break

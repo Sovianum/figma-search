@@ -2,6 +2,7 @@ import * as React from 'react'
 
 export interface InputProps {
     onSubmit(text: string)
+    onChange(text: string)
 }
 interface InputState {value: string}
 export abstract class Input extends React.Component<InputProps, InputState> {
@@ -15,6 +16,7 @@ export abstract class Input extends React.Component<InputProps, InputState> {
 
     onChange(event) {
         this.setState({value: event.target.value})
+        this.props.onChange(event.target.value)
     }
 
     onKeyDown(event) {

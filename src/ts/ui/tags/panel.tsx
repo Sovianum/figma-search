@@ -35,16 +35,17 @@ export class TagsPanel extends React.Component<TagsPanelProps> {
             </Row>
             <p className="type type--pos-medium-normal">All tags</p>
             <Row>
-                <AddTagInput 
-                    onSubmit={this.props.onAddTagSubmit}
-                />
-            </Row>
-            <Row>
                 <TagsCloud 
                     tags={this.props.availableTags}
                     withMenu={true}
                     onTagClick={tagName => this.props.onTagClick(tagName, TagType.Available)}
                     onTagMenuItemClick={(tagName, action) => this.props.onTagMenyItemClick(tagName, action, TagType.Available)}
+                />
+            </Row>
+            <Row>
+                <AddTagInput 
+                    onSubmit={this.props.onAddTagSubmit}
+                    onChange={_ => {}}
                 />
             </Row>
         </Column>

@@ -1,5 +1,6 @@
 import { textFromNode } from "../util";
 import { SearchIndex, makeIndex, NewSearchIndex, IndexableTypes, NewSearchDocument, DocumentDescription, makeDocDescription, SearchDocument, FlexsearchIndex } from ".";
+import { NewTagsStorage, TagsStorage } from "../tags/storage";
 
 const LZUTF8 = require('lzutf8');
 
@@ -17,9 +18,11 @@ export class IndexValue {
 
 export class IndexStorage {
     index: SearchIndex|undefined
+    tagsStorage: TagsStorage
 
     constructor() {
         this.index = null
+        this.tagsStorage = NewTagsStorage(figma.root)
     }
 
     async getIndex(documentID: string): Promise<SearchIndex> {
@@ -58,7 +61,8 @@ export class IndexStorage {
     }
 
     async reindex(documentID: string, root: DocumentNode|PageNode) {
-        const docDescription = makeDocDescription()
+        const docDescription = makeDocDescription(this.tagsStorage.getAllTags().tags.map(tag => tag.name))
+        console.log("doc description is", docDescription)
 
         const index = this.buildIndex(root, docDescription)
         const indexDump = index.export()
@@ -71,7 +75,7 @@ export class IndexStorage {
             updated,
         ))
         
-        this.index = NewSearchIndex(index, makeDocDescription(), updated)
+        this.index = NewSearchIndex(index, docDescription, updated)
     }
 
     private buildIndex(root: DocumentNode|PageNode, docDescription: DocumentDescription): FlexsearchIndex {
@@ -92,11 +96,18 @@ export class IndexStorage {
     }
 
     private searchDocFromNode(node: PageNode | SceneNode): SearchDocument {
-        return NewSearchDocument(
+        const result = NewSearchDocument(
             node.id,
             textFromNode(node).toLowerCase(),
             node.type
         )
+            
+            
+        this.tagsStorage.getTags([node]).tags.forEach(tag => {
+            result.setTag(tag.name)
+        });
+
+        return result
     }
 
     private getIndexID(documentID: string): string {

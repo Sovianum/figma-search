@@ -12,6 +12,7 @@ interface SearchHeaderProps {
     onButtonClick()
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
+    onSearchInputChange(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
 
     availableTags: Array<TagInfo>
@@ -20,7 +21,7 @@ interface SearchHeaderProps {
 export class SearchHeader extends React.Component<SearchHeaderProps> {
     render() {
         const mainHeader = <div>
-            <SearchInput onSubmit={this.props.onSearchSubmit} />
+            <SearchInput onSubmit={this.props.onSearchSubmit} onChange={this.props.onSearchInputChange} />
             <ReindexBar onButtonClick={this.props.onButtonClick} onToggleSwitch={this.props.onToggleSwitch} />
             <NodeTypesCheckboxes
                 currFlags={this.props.userSettings.searchSettings.searchableNodes}

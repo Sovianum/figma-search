@@ -14,7 +14,7 @@ figma.on("selectionchange", () => {
 })
 
 figma.ui.onmessage = async function(msg) {
-  console.log(msg)
+  console.log("message got by domain", msg)
 
   try {
     switch (msg.type) {
@@ -23,7 +23,7 @@ figma.ui.onmessage = async function(msg) {
 
       case MessageType.SearchRequest:
         try {
-          await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
+          await searchModel.onSearchRequest(msg.text, msg.tags, msg.indexOnSearch)
           break
         } catch (e) {
           if (e instanceof PluginMessage) {

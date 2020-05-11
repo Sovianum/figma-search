@@ -17,6 +17,7 @@ export interface AppState {
     availableTags: Array<Tag>
 
     searchTags: Map<string, boolean>
+    searchQuery: string
 
     searchResults: SearchResultProps
     userSettings: UserSettings
@@ -34,6 +35,7 @@ export class App extends React.Component<{}, AppState> {
             availableTags: [],
 
             searchTags: new Map<string, boolean>(),
+            searchQuery: "",
 
             searchResults: {
                 itemProps: [],
@@ -50,7 +52,8 @@ export class App extends React.Component<{}, AppState> {
 
         this.startReindexing = this.startReindexing.bind(this)
         this.switchReindexOnSearch = this.switchReindexOnSearch.bind(this)
-        this.onSearchSubmit = this.onSearchSubmit.bind(this)
+        this.sendSearchRequest = this.sendSearchRequest.bind(this)
+        this.onSearchInputChange = this.onSearchInputChange.bind(this)
         this.navigateToNodeCallback = this.navigateToNodeCallback.bind(this)
         this.onNodeCheckboxClick = this.onNodeCheckboxClick.bind(this)
         this.onTabSelect = this.onTabSelect.bind(this)
@@ -123,15 +126,16 @@ export class App extends React.Component<{}, AppState> {
 
             onButtonClick={this.startReindexing}
             onToggleSwitch={this.switchReindexOnSearch}
-            onSearchSubmit={this.onSearchSubmit}
+            onSearchSubmit={this.sendSearchRequest}
+            onSearchInputChange={this.onSearchInputChange}
             onNodeCheckboxClick={this.onNodeCheckboxClick}
 
-            availableTags={this.getSearchTags()}
+            availableTags={this.getAllSearchTags()}
             onTagClick={this.onSearchTagClick}
         />
     }
 
-    getSearchTags(): Array<TagInfo> {
+    getAllSearchTags(): Array<TagInfo> {
         const state = this.state
 
         return this.state.availableTags.map(tag => {
@@ -142,14 +146,10 @@ export class App extends React.Component<{}, AppState> {
         })
     }
 
-    onSearchSubmit(text: string) {
-        parent.postMessage({ pluginMessage: { 
-                    type: MessageType.SearchRequest, 
-                    text: text,
-                    indexOnSearch: this.state.reindexOnSearch
-                } 
-            }, 
-        '*')
+    onSearchInputChange(text: string) {
+        this.setState({
+            searchQuery: text
+        })
     }
 
     onNodeNotFound(id: string) {
@@ -279,6 +279,8 @@ export class App extends React.Component<{}, AppState> {
     finishReindexing() {
         this.setState({
             loading: false,
+            searchTags: new Map<string, boolean>(),
+            searchQuery: "",
         })
     }
 
@@ -292,8 +294,8 @@ export class App extends React.Component<{}, AppState> {
         this.setState({
             searchResults: {
                 itemProps: [],
-                searchAlert: ""
-            } 
+                searchAlert: "",
+            }
         })
     }
 
@@ -312,6 +314,7 @@ export class App extends React.Component<{}, AppState> {
     }
 
     addTagToSelection(tagName: string) {
+        console.log("adding tag to selection")
         parent.postMessage({pluginMessage: {
             type: MessageType.AddTagToSelection,
             tag: new Tag(tagName)
@@ -333,6 +336,36 @@ export class App extends React.Component<{}, AppState> {
     }
 
     onSearchTagClick(tagName: string) {
+        this.updateSearchTagState(tagName)
+
+        this.sendSearchRequest()
+    }
+
+    onSearchSubmit(query: string) {
+        this.setState({
+            searchQuery: query
+        })
+
+        this.sendSearchRequest
+    }
+
+    sendSearchRequest() {
+        const query = this.state.searchQuery
+
+        const searchTags = this.getAllSearchTags()
+            .filter(tagInfo => this.state.searchTags.get(tagInfo.name))
+            .map(tagInfo => new Tag(tagInfo.name))
+
+        parent.postMessage({ pluginMessage: { 
+                type: MessageType.SearchRequest, 
+                text: query,
+                tags: searchTags,
+                indexOnSearch: this.state.reindexOnSearch
+            }
+        }, '*')
+    }
+
+    updateSearchTagState(tagName: string) {
         const searchTags = this.state.searchTags
         if (!searchTags.has(tagName)) {
             searchTags.set(tagName, true)

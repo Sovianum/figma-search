@@ -69,22 +69,33 @@ export function newTextSelector(text: string): Selector {
         field: [
             "text"
         ],
-        query: text
+        query: text,
+        bool: "and"
     }
 }
 
-export function newTagSelector(tag: string): Selector {
-    return {
-        field: [
-            tag
-        ],
-        query: "has"
-    }
+export function newTagsSelectors(tags: Array<string>): Array<Selector> {
+    return tags.map(tag => {
+        return {
+            field: [tag],
+            query: "has",
+            bool: "and",
+        }
+    })
+    
+}
+
+export function newTagSelectorCondition(tags: Array<string>): object {
+    const result = {}
+    tags.forEach(tag => result[tag] = "has")
+    return result
 }
 
 export interface Selector {
-    field: Array<string>
-    query: string
+    field?: Array<string>
+    query?: string
+    where?: object
+    bool?: string
 }
 
 export interface DocumentDescription {
@@ -134,12 +145,14 @@ class SearchIndexImpl {
 
     checkIndex(selector: Selector) {
         if (!this.description) {
+            console.log("no description", this.description)
             throw newTypePluginMessage(MessageType.NoSearchIndex)
         }
 
         const existingFields = new Set(this.description.field)
         for (let field of selector.field) {
             if (!existingFields.has(field)) {
+                console.log("no field", field, "in descriprion", this.description)
                 throw newTypePluginMessage(MessageType.NoSearchIndex)
             }
         }

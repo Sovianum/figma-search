@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { getUniqueID } from '../util'
 import { Column, Row } from 'simple-flexbox';
-import { IndexableTypes } from '../../domain/search/storage';
+import { IndexableTypes } from '../../domain/search/index';
 import { UserSettings } from '../../settings/settings';
 import { Input } from '../common/input';
 import { TagsCloud, TagInfo } from '../tags/panel'

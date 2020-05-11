@@ -2,7 +2,7 @@ import * as React from 'react'
 import {SearchHeader} from './header'
 import {SearchResultProps, SearchResult} from './search_results'
 import { UserSettings } from '../../settings/settings'
-import { IndexableTypes } from '../../domain/search/storage'
+import { IndexableTypes } from '../../domain/search/index'
 import { TagInfo } from '../tags/panel'
 
 export interface PanelProps {

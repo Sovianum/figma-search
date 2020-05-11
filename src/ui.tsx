@@ -54,6 +54,10 @@ onmessage = event => {
       app.onIndexNotFound()
       break
 
+    case MessageType.SearchIndexAbsolete:
+      app.onAbsoleteIndex()
+      break
+
     case MessageType.UserSettingsUpdateFinish:
       const settings = JSON.parse(msg.data) as UserSettings
       app.onSettingsUpdateFinished(settings)

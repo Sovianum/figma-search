@@ -4,7 +4,7 @@
   "description": "Simple full-text search plugin",
   "main": "code.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register src/tests/**/*.test.ts"
   },
   "keywords": [
     "search",
@@ -14,13 +14,17 @@
   "author": "Klyukvin Artem",
   "license": "MIT",
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "chai": "^4.2.0",
     "css-loader": "^3.4.2",
     "flexsearch": "^0.6.32",
     "html-webpack-inline-source-plugin": "1.0.0-beta.2",
     "html-webpack-plugin": "^4.0.4",
     "lzutf8": "^0.5.5",
+    "mocha": "^7.1.2",
     "node-sass": "^4.14.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -29,6 +33,7 @@
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.1.3",
     "ts-loader": "^6.2.2",
+    "ts-node": "^8.10.1",
     "typescript": "3.8.3",
     "url-loader": "^4.0.0",
     "webpack": "4.42.1",

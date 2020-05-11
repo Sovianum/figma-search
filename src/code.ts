@@ -1,6 +1,6 @@
 import {SearchModel} from './ts/domain/search/model'
 import {TagsModel} from './ts/domain/tags/model'
-import {MessageType} from './ts/message/messages'
+import {MessageType, PluginMessage} from './ts/message/messages'
 import { UserSettings } from './ts/settings/settings'
 import { Tag } from './ts/domain/tags/tags'
 
@@ -22,8 +22,16 @@ figma.ui.onmessage = async function(msg) {
         tagsModel.updateTagsView()
 
       case MessageType.SearchRequest:
-        await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
-        break
+        try {
+          await searchModel.onSearchRequest(msg.text, msg.indexOnSearch)
+          break
+        } catch (e) {
+          if (e instanceof PluginMessage) {
+            figma.ui.postMessage(e)
+          } else {
+            throw e
+          }
+        }
   
       case MessageType.NavigateToNode:
         await searchModel.onNavToNodeRequest(msg.id)

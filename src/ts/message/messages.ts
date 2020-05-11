@@ -11,6 +11,7 @@ export enum MessageType {
     IndexLoadFinish = "indexLoadFinish",
     NavigateToNode = "navigateToNode",
     NoSearchIndex = "noSearchIndex",
+    SearchIndexAbsolete = "searchIndexAbsolete",
     NodeNotFound = "nodeNotFound",
     UserSettingsUpdateStart = "userSettingsUpdateStart",
     UserSettingsUpdateFinish = "userSettingsUpdateFinish",

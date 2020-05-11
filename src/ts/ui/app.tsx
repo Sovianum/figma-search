@@ -2,7 +2,7 @@ import * as React from 'react'
 import {SearchResultProps} from './search/search_results'
 import { MessageType, SearchResponse, SelectionTagsState as TagsState} from '../message/messages'
 import { UserSettings } from '../settings/settings'
-import { IndexableTypes } from '../domain/search/storage'
+import { IndexableTypes } from '../domain/search/index'
 import { SearchPanel } from './search/panel'
 import { TagsPanel, TagType, TagMenuAction } from './tags/panel'
 import { Column, Row } from 'simple-flexbox'
@@ -170,6 +170,17 @@ export class App extends React.Component<{}, AppState> {
             searchResults: {
                 itemProps: [],
                 searchAlert: "Index your document, please"
+            }
+        })
+    }
+
+    onAbsoleteIndex() {
+        this.resetSearchState()
+
+        this.setState({
+            searchResults: {
+                itemProps: [],
+                searchAlert: "Update index, please"
             }
         })
     }

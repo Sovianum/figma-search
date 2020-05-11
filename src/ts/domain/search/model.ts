@@ -3,6 +3,7 @@ import {IndexStorage} from './storage'
 import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType, newUserSettingsUpdateFinish} from '../../message/messages'
 import { SettingsStorage } from '../user_settings'
 import { UserSettings } from '../../settings/settings'
+import { newTextSelector } from '.'
 
 
 export class SearchModel {
@@ -52,13 +53,7 @@ export class SearchModel {
     }
 
     async findNodeDocuments(index, text: string) {
-        const selector = {
-            field: [
-                "text"
-            ]
-        }
-
-        const allDocs = index.search(text.toLowerCase(), selector)
+        const allDocs = index.search(newTextSelector(text.toLowerCase()))
 
         const settings = await this.settingsStorage.getSettings(this.getCurrentDocumentID())
         if (!settings) {

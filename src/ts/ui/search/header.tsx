@@ -9,11 +9,12 @@ import { TagsCloud, TagInfo } from '../tags/panel'
 interface SearchHeaderProps {
     reindexing: boolean
     userSettings: UserSettings
-    onButtonClick()
+    onReindexClick()
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
     onSearchInputChange(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
+    onSearchButtonClick()
 
     availableTags: Array<TagInfo>
     onTagClick(tagName: string)
@@ -22,7 +23,7 @@ export class SearchHeader extends React.Component<SearchHeaderProps> {
     render() {
         const mainHeader = <div>
             <SearchInput onSubmit={this.props.onSearchSubmit} onChange={this.props.onSearchInputChange} />
-            <ReindexBar onButtonClick={this.props.onButtonClick} onToggleSwitch={this.props.onToggleSwitch} />
+            <SearchIndexBar onReindexClick={this.props.onReindexClick} onToggleSwitch={this.props.onToggleSwitch} onSearchButtonClick={this.props.onSearchButtonClick} />
             <NodeTypesCheckboxes
                 currFlags={this.props.userSettings.searchSettings.searchableNodes}
                 onCheckboxUpdate={this.props.onNodeCheckboxClick}
@@ -121,18 +122,23 @@ class Checkbox extends React.Component<CheckboxProps> {
     }
 }
 
-interface ReindexBarProps {
-    onButtonClick()
+interface SearchIndexBarProps {
+    onReindexClick()
     onToggleSwitch(checked: boolean)
+    onSearchButtonClick()
 }
-class ReindexBar extends React.Component<ReindexBarProps> {
+class SearchIndexBar extends React.Component<SearchIndexBarProps> {
     render() {
         return <Row>
             <Column flexGrow={1} horizontal='start'>
                 <Toggle onChecked={this.props.onToggleSwitch} />
+                <a className="reindex-button" onClickCapture={this.props.onReindexClick}>Reindex</a>
             </Column>
-            <Column flexGrow={1} horizontal='end'>
-                <Button onClick={this.props.onButtonClick} />
+            <Column flexGrow={1} horizontal='end' vertical='center'>
+                <Button 
+                    onClick={this.props.onSearchButtonClick}
+                    text="Search"
+                />
             </Column>
         </Row>
     }
@@ -176,13 +182,14 @@ class Toggle extends React.Component<ToggleProps, ToggleState> {
 
 interface ButtonProps {
     onClick(): void
+    text: string
 }
 class Button extends React.Component<ButtonProps> {
     render() {
         return React.createElement("button", { 
             className: 'button button--primary', 
             onClick: this.props.onClick 
-        }, "Reindex")
+        }, this.props.text)
     }
 }
 

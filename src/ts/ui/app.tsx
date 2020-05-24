@@ -129,6 +129,7 @@ export class App extends React.Component<{}, AppState> {
             onSearchSubmit={this.sendSearchRequest}
             onSearchInputChange={this.onSearchInputChange}
             onNodeCheckboxClick={this.onNodeCheckboxClick}
+            onSearchButtonClick={this.sendSearchRequest}
 
             availableTags={this.getAllSearchTags()}
             onTagClick={this.onSearchTagClick}

@@ -15,6 +15,7 @@ export interface PanelProps {
     onSearchSubmit(text: string)
     onSearchInputChange(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
+    onSearchButtonClick()
 
     availableTags: Array<TagInfo>
     onTagClick(tagName: string)
@@ -26,11 +27,12 @@ export class SearchPanel extends React.Component<PanelProps> {
             <SearchHeader 
                 reindexing={this.props.loading}
                 userSettings={this.props.userSettings}
-                onButtonClick={this.props.onButtonClick} 
+                onReindexClick={this.props.onButtonClick} 
                 onToggleSwitch={this.props.onToggleSwitch} 
                 onSearchSubmit={this.props.onSearchSubmit}
                 onSearchInputChange={this.props.onSearchInputChange}
                 onNodeCheckboxClick={this.props.onNodeCheckboxClick}
+                onSearchButtonClick={this.props.onSearchButtonClick}
 
                 availableTags={this.props.availableTags}
                 onTagClick={this.props.onTagClick}

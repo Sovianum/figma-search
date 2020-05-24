@@ -2,6 +2,7 @@ import './static/ds.min.css'
 import './static/ds.min.js'
 import './styles/tabs.scss'
 import './styles/tags.scss'
+import './styles/indexing.scss'
 import {MessageType, SearchResponse, PluginMessage, SelectionTagsState} from './ts/message/messages'
 
 import * as ReactDOM from 'react-dom'

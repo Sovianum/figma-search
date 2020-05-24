@@ -1,0 +1,27 @@
+a {
+    &.reindex-button {
+        display: inline-block;
+
+        color: #787878;
+        margin-top: -5px;
+        margin-left: 5px;
+        font-family: "Inter", sans-serif; 
+        font-weight: 400; 
+        font-size: 11px; 
+        letter-spacing: 0.005em;
+        text-decoration: underline;
+        
+        background:none;
+        border:none;
+
+        &:active {
+            color: #000000;
+            background:none;
+            border:none;
+        }
+
+        &:hover {
+            cursor: pointer;
+        }
+    } 
+}

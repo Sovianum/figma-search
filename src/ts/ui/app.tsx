@@ -141,7 +141,7 @@ export class App extends React.Component<{}, AppState> {
         return this.state.availableTags.map(tag => {
             return {
                 name: tag.name,
-                withShadow: !state.searchTags.get(tag.name)
+                inactive: !state.searchTags.get(tag.name)
             }
         })
     }

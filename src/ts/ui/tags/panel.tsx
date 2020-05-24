@@ -82,7 +82,7 @@ class AddTagInput extends Input {   // todo clear input on submit
 
 export interface TagInfo {
     name: string
-    withShadow?: boolean
+    inactive?: boolean
 }
 interface TagsLineProps {
     tags: Array<TagInfo>
@@ -113,7 +113,7 @@ class TagsLine extends React.Component<TagsLineProps> {
                 return <Tag 
                     text={tagInfo.name}
                     tagClass={tagClass}
-                    withShadow={tagInfo.withShadow}
+                    inactive={tagInfo.inactive}
 
                     onTagClick={() => this.props.onTagClick(tagInfo.name)}
 
@@ -191,15 +191,15 @@ interface TagProps {
     text: string
     tagClass: string
 
-    withShadow: boolean
+    inactive: boolean
 
     onTagClick(): void
 }
 class Tag extends React.Component<TagProps> {
     render() {
         let buttonClassName = "tag-content-left-right"
-        if (this.props.withShadow) {
-            buttonClassName += " with-shadow"
+        if (this.props.inactive) {
+            buttonClassName += " inactive"
         }
 
         const tag = React.createElement("button", { 

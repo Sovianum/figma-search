@@ -35,8 +35,8 @@
         @include round-left;
     }
 
-    .with-shadow {
-        box-shadow: 0 0 10px $contentBgColor;
+    .inactive {
+        opacity: 0.5;
     }
 }
   

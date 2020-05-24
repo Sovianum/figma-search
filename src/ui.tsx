@@ -1,15 +1,22 @@
 import './static/ds.min.css'
 import './static/ds.min.js'
-import {MessageType, SearchResponse, PluginMessage} from './message/messages'
+import './styles/tabs.scss'
+import './styles/tags.scss'
+import {MessageType, SearchResponse, PluginMessage, SelectionTagsState} from './ts/message/messages'
 
 import * as ReactDOM from 'react-dom'
 import * as React from 'react'
-import { App } from './ui/app'
-import { UserSettings } from './settings/settings'
+import { App } from './ts/ui/app'
+import { UserSettings } from './ts/settings/settings'
 
 let app: App = null
 ReactDOM.render(<App ref={ref => {
   app = ref
+
+  parent.postMessage({pluginMessage: {
+    type: MessageType.UIInited
+  }}, "*")
+
   app.loadSettings()
   app.loadIndex()
 }}/>, document.getElementById('react-page'))
@@ -47,9 +54,16 @@ onmessage = event => {
       app.onIndexNotFound()
       break
 
+    case MessageType.SearchIndexAbsolete:
+      app.onAbsoleteIndex()
+      break
+
     case MessageType.UserSettingsUpdateFinish:
       const settings = JSON.parse(msg.data) as UserSettings
       app.onSettingsUpdateFinished(settings)
+      break
 
+    case MessageType.UpdateTags:
+      app.onTagsUpdated(msg.data as SelectionTagsState)
   }
 }

@@ -1,11 +1,13 @@
-import {getNodePage, textFromNode} from './util'
-import {IndexStorage} from './search'
-import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType, newUserSettingsUpdateFinish} from '../message/messages'
-import { SettingsStorage } from './user_settings'
-import { UserSettings } from '../settings/settings'
+import {getNodePage, textFromNode} from '../util'
+import {IndexStorage} from './storage'
+import {SearchResponse, newSearchResponseMessage, newNodeNotFound, newTypePluginMessage, MessageType, newUserSettingsUpdateFinish} from '../../message/messages'
+import { SettingsStorage } from '../user_settings'
+import { UserSettings } from '../../settings/settings'
+import { newTextSelector, SearchIndex, Selector, newTagSelectorCondition, newTagsSelectors } from '.'
+import { Tag } from '../tags/tags'
 
 
-export class Model {
+export class SearchModel {
     indexStorage: IndexStorage
     settingsStorage: SettingsStorage
 
@@ -31,7 +33,7 @@ export class Model {
         figma.viewport.scrollAndZoomIntoView([node])
     }
 
-    async onSearchRequest(text: string, indexOnSearch: boolean) {
+    async onSearchRequest(text: string, tags: Array<Tag>, indexOnSearch: boolean) {
         const documentID = this.getCurrentDocumentID()
 
         if (indexOnSearch) {
@@ -44,21 +46,24 @@ export class Model {
             return
         }
         
-        const nodeDocuments = await this.findNodeDocuments(index, text.toLowerCase())
+        const nodeDocuments = await this.findNodeDocuments(index, text, tags)
 
         const nodes = nodeDocuments.map(doc => figma.getNodeById(doc.id)).filter(node => node) as Array<TextNode>
         const searchResults = nodes.map(node => new SearchResponse(node.id, textFromNode(node)))
         figma.ui.postMessage(newSearchResponseMessage(searchResults))
     }
 
-    async findNodeDocuments(index, text: string) {
-        const selector = {
-            field: [
-                "text"
-            ]
-        }
+    async findNodeDocuments(index: SearchIndex, text: string, tags: Array<Tag>) {
+        const selectors = this.getSearchSelectors(text, tags)
+        console.log("selectors are", selectors)
 
-        const allDocs = index.search(text.toLowerCase(), selector)
+        let allDocs = null
+        try {
+            allDocs = index.searchMultipleSelectors(selectors)
+        } catch (e) {
+            console.log("error is", e)
+            throw e
+        }
 
         const settings = await this.settingsStorage.getSettings(this.getCurrentDocumentID())
         if (!settings) {
@@ -78,6 +83,19 @@ export class Model {
         }
 
         return allDocs.filter(doc => searchableTypes.has(doc.type))
+    }
+
+    getSearchSelectors(text: string, tags: Array<Tag>): Array<Selector> {
+        if (tags == null || tags.length == 0) {
+            return [newTextSelector(text.toLowerCase())]
+        }
+
+        if (text === "") {
+            return newTagsSelectors(tags.map(tag => tag.name))
+        }
+
+        return newTagsSelectors(tags.map(tag => tag.name))
+            .concat([newTextSelector(text.toLowerCase())])
     }
 
     async onReindex() {

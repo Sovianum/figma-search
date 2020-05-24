@@ -1,8 +1,10 @@
 import * as React from 'react'
-import { getUniqueID } from './util'
+import { getUniqueID } from '../util'
 import { Column, Row } from 'simple-flexbox';
-import { IndexableTypes } from '../domain/search';
-import { UserSettings } from '../settings/settings';
+import { IndexableTypes } from '../../domain/search/index';
+import { UserSettings } from '../../settings/settings';
+import { Input } from '../common/input';
+import { TagsCloud, TagInfo } from '../tags/panel'
 
 interface SearchHeaderProps {
     reindexing: boolean
@@ -10,16 +12,26 @@ interface SearchHeaderProps {
     onButtonClick()
     onToggleSwitch(checked: boolean)
     onSearchSubmit(text: string)
+    onSearchInputChange(text: string)
     onNodeCheckboxClick(type: IndexableTypes, checked: boolean)
+
+    availableTags: Array<TagInfo>
+    onTagClick(tagName: string)
 }
 export class SearchHeader extends React.Component<SearchHeaderProps> {
     render() {
         const mainHeader = <div>
-            <SearchInput onSubmit={this.props.onSearchSubmit} />
+            <SearchInput onSubmit={this.props.onSearchSubmit} onChange={this.props.onSearchInputChange} />
             <ReindexBar onButtonClick={this.props.onButtonClick} onToggleSwitch={this.props.onToggleSwitch} />
             <NodeTypesCheckboxes
                 currFlags={this.props.userSettings.searchSettings.searchableNodes}
                 onCheckboxUpdate={this.props.onNodeCheckboxClick}
+            />
+            <TagsCloud 
+                tags={this.props.availableTags}
+                withMenu={false}
+
+                onTagClick={this.props.onTagClick}
             />
         </div>
 
@@ -174,35 +186,8 @@ class Button extends React.Component<ButtonProps> {
     }
 }
 
-interface SearchInputState {value: string} 
-interface SearchInputProps {
-    onSubmit(text: string)
-}
-class SearchInput extends React.Component<SearchInputProps, SearchInputState> {
-    constructor(props) {
-        super(props)
-        this.state = {value: ''}
-
-        this.onChange = this.onChange.bind(this)
-        this.onKeyDown = this.onKeyDown.bind(this)
-    }
-
-    onChange(event) {
-        this.setState({value: event.target.value})
-    }
-
-    onKeyDown(event) {
-        if(event.key !== 'Enter'){
-            return
-        }
-        this.props.onSubmit(this.state.value)
-    }
-
-    render() {
-        if (this.state.value == '') {
-            return <input className="input" placeholder="Search" onChange={this.onChange} onKeyDown={this.onKeyDown} />
-        }
-
-        return <input className="input" value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} />
+class SearchInput extends Input {
+    getPlaceholder(): string {
+        return "Search"
     }
 }

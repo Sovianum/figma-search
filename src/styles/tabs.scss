@@ -1,0 +1,22 @@
+.tab-buttons{
+    margin-bottom:4px;
+}
+  
+.tab-button{
+    margin-right:4px;
+    font-size:12px;
+    background:transparent;
+    border:none;
+    outline:none;
+    padding:5px 10px ;
+    cursor:pointer;
+    color:rgba(0,0,0,.4);
+    transition:all ease-in-out .2s;
+    border-bottom:2px solid transparent;
+}
+
+.tab-button-active{
+    border-bottom:2px solid #42b3f4;
+
+    color:black;
+}

@@ -1,18 +1,37 @@
 import { UserSettings } from "../settings/settings"
+import {Tag} from '../domain/tags/tags'
 
 export enum MessageType {
+    UIInited = "uiInited",
     SearchRequest = "search_request",
     SearchResponse = "search_response",
     ReindexStart = "reindexStart",
     ReindexFinish = "reindexFinish",
     IndexLoadStart = "indexLoadStart",
     IndexLoadFinish = "indexLoadFinish",
-    NavigateToNode = "navigate_to_node",
+    NavigateToNode = "navigateToNode",
     NoSearchIndex = "noSearchIndex",
+    SearchIndexAbsolete = "searchIndexAbsolete",
     NodeNotFound = "nodeNotFound",
     UserSettingsUpdateStart = "userSettingsUpdateStart",
     UserSettingsUpdateFinish = "userSettingsUpdateFinish",
-    UserSettingsLoadStart = "userSettingsLoadStart"
+    UserSettingsLoadStart = "userSettingsLoadStart",
+    UpdateTags = "updateSelectionTags",
+    AddTagToSelection = "addTagToSelection",
+    RemoveTagFromSelection = "removeTagFromSelection",
+    CreateTag = "createTag",
+    RemoveTag = "removeTag"
+}
+
+export interface SelectionTagsState {
+    selectionTags: Array<Tag>
+    availableTags: Array<Tag>
+}
+export function newUpdateTagState(selectionTags: Array<Tag>, availableTags: Array<Tag>): PluginMessage {
+    return new PluginMessage(MessageType.UpdateTags, {
+        selectionTags,
+        availableTags
+    })
 }
 
 export function newSearchResponseMessage(responses: Array<SearchResponse>): PluginMessage {

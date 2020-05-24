@@ -1,5 +1,3 @@
-import { IndexableTypes } from "../domain/search";
-
 export function getDefaultUserSettings(): UserSettings {
     return {
         searchSettings: {

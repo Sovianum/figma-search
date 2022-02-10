@@ -25,7 +25,7 @@
     "html-webpack-plugin": "^4.0.4",
     "lzutf8": "^0.5.5",
     "mocha": "^7.1.2",
-    "node-sass": "^4.14.0",
+    "node-sass": "^7.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "sass-loader": "^8.0.2",
